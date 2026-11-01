@@ -1,13 +1,13 @@
 namespace BLEStudio.Core;
 
-public sealed record ValidationIssue(string Field, string Message);
+public sealed record ValidationIssue(string Field, string Message, ValidationSeverity Severity = ValidationSeverity.Error);
 
 public static class WindowsPayloadPolicy
 {
     private static readonly HashSet<byte> Reserved = [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A,
         0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x12, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x3D];
     public static bool IsReserved(byte type) => Reserved.Contains(type);
-    public static int Capacity(AdvertisementProfile profile, AdapterCapabilities adapter) => profile.UseExtendedAdvertising ? adapter.MaxExtendedLength : 28;
+    public static int Capacity(AdvertisementProfile profile, AdapterCapabilities adapter) => profile.UseExtendedAdvertising ? adapter.MaxExtendedLength : 31;
     public static IReadOnlyList<ValidationIssue> Validate(AdvertisementProfile p, AdapterCapabilities adapter)
     {
         var issues = new List<ValidationIssue>();
@@ -36,7 +36,8 @@ public static class WindowsPayloadPolicy
         {
             var bytes = Hex.Parse(p.PayloadHex);
             if (bytes.Length == 0) Add("Payload", "At least one AD structure is required.");
-            if (bytes.Length > Capacity(p, adapter)) Add("Payload", $"Payload is {bytes.Length} bytes; current budget is {Capacity(p, adapter)} bytes. Legacy budget reserves 3 bytes for Windows flags.");
+            if (bytes.Length > Capacity(p, adapter)) Add("Payload", $"Payload is {bytes.Length} bytes; current budget is {Capacity(p, adapter)} bytes including AD headers.");
+            else if (!p.UseExtendedAdvertising && bytes.Length > 28) issues.Add(new("Payload", "Above the conservative 28-byte budget. Windows may need room for additional fields; actual API acceptance and external capture must be checked.", ValidationSeverity.Warning));
             var ads = AdCodec.Decode(bytes);
             foreach (var ad in ads)
             {

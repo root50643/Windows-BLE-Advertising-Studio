@@ -23,7 +23,7 @@ public static class AppleFindMyResearch
         return new(Hex.Format(AdCodec.Encode([new(0xFF, data)])), string.Join(":", address.Select(x => x.ToString("X2"))),
             ["OpenHaystack-format preview only; imported public key has not been cryptographically certified.",
              "The first 6 key bytes must be encoded in the BLE static-random address. Windows Publisher cannot set that address.",
-             "31-byte structure exceeds this backend's conservative 28-byte legacy budget. Extended advertising changes transport semantics.",
+             "31-byte legacy structure exceeds the conservative 28-byte budget but is allowed as a controlled API test. Actual on-air content and address remain unverified.",
              "Publisher Started is not evidence of Apple network participation or a location report."]);
     }
     public static ProtocolAnalysis Analyze(IEnumerable<AdStructure> structures, string? address = null)
@@ -46,7 +46,7 @@ public static class AppleFindMyResearch
         }
         return new("Apple Find My / OpenHaystack", true, valid, fields,
             [valid ? "Matches the reference OpenHaystack offline-finding structure; other Find My frame variants are not certified by this parser." : "Unexpected subtype length, key-high-bit field or payload length.",
-             "Windows cannot select the required key-derived address. This is not a complete Find My accessory implementation.", "No Apple account login, report retrieval or location verification is implemented."]);
+             "Windows cannot select the required key-derived address. This is not a complete Find My accessory implementation.", "Use the Tracker page and self-hosted provider for owned-key registration and report retrieval. This parser does not verify network reports."]);
     }
 }
 
@@ -61,7 +61,7 @@ public static class GoogleFindHubResearch
         if (hashedFlags is { } flags) data = [.. data, flags];
         var bytes = AdCodec.Encode([new(0x01, [0x06]), new(0x16, data)]);
         return new(Hex.Format(bytes), null,
-            ["FHN v1.3 frame preview from an imported EID. EIK-to-EID cryptography, provisioning and registration are not performed.",
+            ["FHN v1.3 preview from an imported EID. The Tracker page separately derives rotating EIDs from a protected EIK and connects to your self-hosted service.",
              "Windows Publisher reserves Flags (0x01) and Service Data (0x16), preventing this exact frame from being submitted.",
              "Windows cannot synchronize address rotation with EID rotation. Unregistered frames do not establish official Find Hub visibility.",
              "DULT, ringing, ownership checks and Fast Pair GATT behavior are accessory requirements outside this packet analyzer."]);
@@ -84,7 +84,7 @@ public static class GoogleFindHubResearch
         }
         return new("Google Find Hub / FHN", true, valid, fields,
             [valid ? "Matches FHN v1.3 service-data framing. No cryptographic identity validation has been performed." : "0xFEAA is also used by Eddystone; this is not a valid supported FHN frame.",
-             "Reserved service data cannot be published by this Windows backend. Fast Pair provisioning, registration and network reporting are not implemented."]);
+             "Publisher reserves Service Data. Select native GATT to test ServiceData; partial-data status is a failure. Fast Pair certification, DULT and ringing are not implemented."]);
     }
 }
 

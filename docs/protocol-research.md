@@ -11,8 +11,7 @@ bytes through a static-random address with top bits forced to 11. Given a
 captured static-random address, the library can reconstruct that x coordinate.
 This is structural parsing, not curve membership or identity authentication.
 
-Windows cannot set that address, and the reference frame exceeds the conservative
-legacy budget. A manufacturer-only transmission in extended mode would still
+Windows cannot set that address. The candidate now allows 31-byte controlled legacy submissions with a warning above the conservative 28-byte threshold. A manufacturer-only transmission in extended mode would still
 not reproduce the reference transport or establish Apple compatibility.
 
 ## Google
@@ -25,12 +24,10 @@ The preview encodes flags 0x06 and service data AD 0x16 with UUID bytes AA FE,
 frame 0x40/0x41, 20-byte or 32-byte EID and optional hashed flags. The parser
 accepts both widths and flags presence, distinguishes other FEAA/Eddystone
 frames, and does not claim to authenticate an EID or decode hashed flags without
-the scalar. Only precomputed authorized EIDs are used. The secret EIK is never
+the scalar. The research preview uses precomputed EIDs; the Tracker page separately derives secp160r1 EIDs with AES-256 and Bouncy Castle. The secret EIK is never
 treated as an EID and is not placed into a payload by the preview.
 
-Exact frames are blocked by Publisher's reserved flags and service-data rules.
-Fast Pair GATT provisioning, accessory registration, account keys, EID derivation,
-address synchronization, ringing and DULT are outside this application. A format
+Exact frames remain blocked by Publisher's reserved flags and service-data rules; the separate GATT backend tests ServiceData and treats incomplete advertising as failure. The candidate adds owned-account registration and report retrieval via a self-hosted provider. Fast Pair accessory certification, address synchronization, ringing and DULT remain outside the implementation. A format
 preview does not produce an accessory visible in the official Find Hub app.
 
 ## Controlled test procedure

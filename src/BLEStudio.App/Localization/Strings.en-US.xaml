@@ -6,7 +6,7 @@
   <sys:String x:Key="UI_Switch_backend" xml:space="preserve">Switch backend</sys:String>
   <sys:String x:Key="UI_Stops_active_operations_and_switches_between_Windows_BL" xml:space="preserve">Stops active operations and switches between Windows BLE and the explicit mock simulator.</sys:String>
   <sys:String x:Key="UI_Light_dark" xml:space="preserve">Light / dark</sys:String>
-  <sys:String x:Key="UI_v1_0_0_Windows_Runtime_10_One_publisher_explicit_capabi" xml:space="preserve">v1.0.0 · Windows Runtime&#10;One publisher · explicit capabilities</sys:String>
+  <sys:String x:Key="UI_v1_0_0_Windows_Runtime_10_One_publisher_explicit_capabi" xml:space="preserve">v1.1.0-rc.1 · Windows Runtime&#10;Publisher / GATT · one protocol</sys:String>
   <sys:String x:Key="UI_01_Dashboard" xml:space="preserve">01   Dashboard</sys:String>
   <sys:String x:Key="UI_Your_Bluetooth_workspace" xml:space="preserve">Your Bluetooth workspace</sys:String>
   <sys:String x:Key="UI_Controller_capabilities_operation_state_and_recent_prof" xml:space="preserve">Controller capabilities, operation state and recent profiles in one place.</sys:String>
@@ -31,7 +31,7 @@
   <sys:String x:Key="UI_Profile_name" xml:space="preserve">Profile name</sys:String>
   <sys:String x:Key="UI_Protocol_independent_test_profile" xml:space="preserve">Protocol / independent test profile</sys:String>
   <sys:String x:Key="UI_Extended_advertising" xml:space="preserve">Extended advertising</sys:String>
-  <sys:String x:Key="UI_Requires_the_adapter_s_extended_advertising_flag_Legacy" xml:space="preserve">Requires the adapter's extended advertising flag. Legacy data budget is conservatively 28 bytes.</sys:String>
+  <sys:String x:Key="UI_Requires_the_adapter_s_extended_advertising_flag_Legacy" xml:space="preserve">Legacy: 28-byte conservative budget; 29–31-byte controlled tests are allowed with a warning. API acceptance and RF content are separate.</sys:String>
   <sys:String x:Key="UI_Include_TX_power_in_extended_header" xml:space="preserve">Include TX power in extended header</sys:String>
   <sys:String x:Key="UI_Anonymous_extended_advertising" xml:space="preserve">Anonymous extended advertising</sys:String>
   <sys:String x:Key="UI_Preferred_TX_power_dBm" xml:space="preserve">Preferred TX power (dBm)</sys:String>

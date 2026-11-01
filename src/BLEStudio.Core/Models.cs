@@ -6,6 +6,7 @@ public enum SupportStatus { Supported, Unsupported, Unknown, RequiresVerificatio
 public enum OperationState { Stopped, Starting, Started, Stopping, Waiting, Aborted }
 public enum ResearchProtocol { Generic, AppleFindMy, GoogleFindHub }
 public enum PhyPreference { Default, LE1M, LE2M, LECoded }
+public enum ValidationSeverity { Error, Warning }
 
 public sealed record Capability(string Feature, SupportStatus Status, string Reason);
 public sealed record AdapterCapabilities
@@ -78,6 +79,7 @@ public sealed record ScanPacket
 public interface IBluetoothBackend : IAsyncDisposable
 {
     string Name { get; }
+    IReadOnlyList<ValidationIssue> ValidateProfile(AdvertisementProfile profile, AdapterCapabilities adapter) => WindowsPayloadPolicy.Validate(profile, adapter);
     event EventHandler<BackendStatus>? AdvertisingStatusChanged;
     event EventHandler<BackendStatus>? ScanningStatusChanged;
     event EventHandler<ScanPacket>? PacketReceived;

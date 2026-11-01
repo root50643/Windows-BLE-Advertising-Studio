@@ -1,0 +1,68 @@
+name: ble-studio-tracking
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    restart: unless-stopped
+    user: "${SERVICE_UID:-1000}:${SERVICE_GID:-1000}"
+    read_only: true
+    tmpfs: [/tmp:mode=1777]
+    environment:
+      PUBLIC_URL: https://${DOMAIN:?Run python3 setup.py first}
+      DATA_DIR: /data
+      MASTER_KEY_FILE: /run/secrets/master_key
+      OWNER_PASSWORD_FILE: /run/secrets/owner_password
+      GOOGLE_TOOLS_ROOT: /opt/google-tools
+      APPLE_ENDPOINT_URL: http://apple:6176
+    secrets: [master_key, owner_password]
+    volumes: [./data:/data]
+    expose: ["8080"]
+    networks: [private, internet]
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/api/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports: ["80:80", "443:443", "443:443/udp"]
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes: [./Caddyfile:/etc/caddy/Caddyfile:ro, caddy_data:/data, caddy_config:/config]
+    depends_on:
+      api:
+        condition: service_healthy
+    networks: [private, internet]
+  apple:
+    profiles: [apple]
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.apple
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    volumes: [./apple-data:/app/endpoint/data]
+    expose: ["6176"]
+    networks: [private, internet]
+  anisette:
+    profiles: [apple]
+    image: dadoum/anisette-v3-server:latest
+    restart: unless-stopped
+    volumes: [anisette_data:/home/Alcoholic/.config/anisette-v3]
+    expose: ["6969"]
+    networks: [private, internet]
+secrets:
+  master_key:
+    file: ./secrets/master_key
+  owner_password:
+    file: ./secrets/owner_password
+networks:
+  private:
+    internal: true
+  internet: {}
+volumes:
+  caddy_data: {}
+  caddy_config: {}
+  anisette_data: {}

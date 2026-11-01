@@ -30,9 +30,7 @@ Publisher-reserved AD types checked before constructing the WinRT request:
 The application never filters these bytes out and then claims the original
 payload was submitted.
 
-Legacy validation reserves 3 bytes for Windows flags, giving 28 application
-bytes including AD headers. This is a conservative backend limit, not a claim
-that every controller has an intrinsic 28-byte advertising limit. Extended
+Legacy validation warns above the conservative 28-byte threshold and permits controlled 29–31-byte submissions. It rejects over 31 bytes. This separates Windows flag reservations from the actual API acceptance limit. Extended
 validation uses `MaxAdvertisementDataLength`; Windows still has final authority.
 
 Publisher progression is asynchronous: Starting → Waiting → Started or Aborted.
@@ -41,6 +39,10 @@ terminal status. Watcher Start may initially return Created, so the backend
 waits for Started (up to five seconds) rather than reporting success immediately.
 
 Primary sources (reviewed 2026-11-01):
+
+The separate `WindowsGattBackend` creates a `GattServiceProvider` with the service UUID and passes only the data after the UUID to `ServiceData`. Requested flags remain a preview requirement; Windows generates actual flags. The backend supports connectable/discoverable controls and optionally requests secondary 1M PHY on Windows 26100+. Publisher's reserved-type list is not applied to GATT. Other unsupported Publisher-specific options are rejected instead of dropped. `StartedWithoutAllAdvertisementData` is an explicit failure. UUID width, complete data, primary/scan-response placement and address require an external capture. See [current native results](native-tracking-validation.md).
+
+- [GATT ServiceData and partial-data status](https://learn.microsoft.com/en-us/uwp/api/windows.devices.bluetooth.genericattributeprofile.gattserviceprovideradvertisingparameters.servicedata)
 
 - [Publisher allowed/reserved AD types and properties](https://learn.microsoft.com/en-us/uwp/api/windows.devices.bluetooth.advertisement.bluetoothleadvertisementpublisher)
 - [BluetoothAdapter capability properties](https://learn.microsoft.com/en-us/uwp/api/windows.devices.bluetooth.bluetoothadapter)

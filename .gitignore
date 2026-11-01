@@ -3,6 +3,17 @@ obj/
 .vs/
 .idea/
 artifacts/
+deploy/.env
+deploy/data/
+deploy/secrets/
+deploy/apple-data/
+**/__pycache__/
+**/.pytest_cache/
+**/secrets.json
+google-authorization.json
+ble-studio-desktop-credential.json
+google-auth-env/
+GoogleFindMyTools/
 TestResults/
 *.user
 *.suo

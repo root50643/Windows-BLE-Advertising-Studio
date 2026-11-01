@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([ValidatePattern('^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$')][string]$Version = '1.0.0', [switch]$SkipTests, [string]$OutputDirectory = 'artifacts\release')
+param([ValidatePattern('^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$')][string]$Version = '1.1.0-rc.1', [switch]$SkipTests, [string]$OutputDirectory = 'artifacts\release')
 $ErrorActionPreference = 'Stop'
 $taskRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $taskDotnet = (Get-Command dotnet -ErrorAction SilentlyContinue).Source
@@ -24,6 +24,8 @@ try {
     Invoke-Dotnet publish src/BLEStudio.App/BLEStudio.App.csproj -c Release -r win-x64 --self-contained true '-p:PublishSingleFile=true' '-p:PublishTrimmed=false' "-p:Version=$Version" '-p:DebugType=None' '-p:DebugSymbols=false' -o $taskPublish
     Copy-Item -LiteralPath (Join-Path $taskRoot 'LICENSE'),(Join-Path $taskRoot 'README.md'),(Join-Path $taskRoot 'README.en.md'),(Join-Path $taskRoot 'THIRD-PARTY-NOTICES.md') -Destination $taskPublish
     Copy-Item -LiteralPath (Join-Path $taskRoot 'docs') -Destination $taskPublish -Recurse
+    New-Item -ItemType Directory -Force -Path (Join-Path $taskPublish 'deploy') | Out-Null
+    Copy-Item -LiteralPath (Join-Path $taskRoot 'deploy/README.md'),(Join-Path $taskRoot 'deploy/README.en.md') -Destination (Join-Path $taskPublish 'deploy')
     Copy-Item -LiteralPath (Join-Path $taskRoot 'profiles') -Destination $taskPublish -Recurse
     Copy-Item -LiteralPath (Join-Path $taskRoot 'assets') -Destination $taskPublish -Recurse
     $taskNugetRoot = if ($env:NUGET_PACKAGES) { $env:NUGET_PACKAGES } else { Join-Path $env:USERPROFILE '.nuget\packages' }
@@ -39,6 +41,7 @@ try {
         }
     }
     $taskExe = Get-Item -LiteralPath (Join-Path $taskPublish 'BLEStudio.exe')
+    Copy-Item -LiteralPath (Join-Path $taskNugetRoot 'bouncycastle.cryptography/2.7.0/LICENSE.md') -Destination (Join-Path $taskLicenseRoot 'BouncyCastle-LICENSE.md')
     Copy-Item -LiteralPath $taskExe.FullName -Destination (Join-Path $taskReleaseRoot 'BLEStudio.exe') -Force
     $taskHash = (Get-FileHash -LiteralPath $taskExe.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
     $taskBuildInfo = [ordered]@{ version = $Version; runtime = 'win-x64'; selfContained = $true; singleFile = $true; trimmed = $false; builtAtUtc = [DateTimeOffset]::UtcNow.ToString('O'); exe = 'BLEStudio.exe'; bytes = $taskExe.Length; sha256 = $taskHash; fileVersion = $taskExe.VersionInfo.FileVersion }

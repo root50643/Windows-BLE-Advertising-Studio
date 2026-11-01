@@ -1,3 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup><ProjectReference Include="../BLEStudio.Core/BLEStudio.Core.csproj" /></ItemGroup>
+  <ItemGroup><PackageReference Include="BouncyCastle.Cryptography" Version="2.7.0" /></ItemGroup>
 </Project>

@@ -1,0 +1,12 @@
+.git
+artifacts
+**/bin
+**/obj
+**/__pycache__
+**/.pytest_cache
+deploy/.env
+deploy/data
+deploy/secrets
+deploy/apple-data
+**/*.dpapi
+**/secrets.json

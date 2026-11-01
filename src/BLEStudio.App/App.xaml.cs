@@ -5,6 +5,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using BLEStudio.Bluetooth;
 using BLEStudio.Core;
+using BLEStudio.Protocols;
 
 namespace BLEStudio.App;
 
@@ -19,6 +20,10 @@ public partial class App : Application
         };
         try
         {
+            if (e.Args.Contains("--tracker-hardware-test"))
+            {
+                await TrackerHardwareTestAsync(OutputDirectory(e.Args)); Shutdown(); return;
+            }
             if (e.Args.Contains("--hardware-test"))
             {
                 await HardwareTestAsync(OutputDirectory(e.Args)); Shutdown(); return;
@@ -26,7 +31,7 @@ public partial class App : Application
             var smoke = e.Args.Contains("--smoke-test");
             var output = smoke ? OutputDirectory(e.Args) : null;
             var vm = new StudioViewModel(smoke || e.Args.Contains("--mock"), smoke ? Path.Combine(output!, "local-data") : null);
-            MainWindow = new MainWindow(vm); MainWindow.Show();
+            MainWindow = new MainWindow(vm, !smoke); MainWindow.Show();
             await vm.InitializeAsync();
             if (smoke) await SmokeTestAsync((MainWindow)MainWindow, vm, output!);
         }
@@ -77,7 +82,11 @@ public partial class App : Application
             window.Sections.SelectedIndex = i; await Task.Delay(150); window.UpdateLayout(); RenderWindow(window, Path.Combine(output, $"page-{i + 1}.png"));
         }
         vm.ToggleThemeCommand.Execute(null); window.Sections.SelectedIndex = 0; await Task.Delay(150); window.UpdateLayout(); RenderWindow(window, Path.Combine(output, "dashboard-light.png"));
-        Check(true, "All seven pages and light/dark themes rendered");
+        Check(window.Sections.Items.Count == 8, "All eight pages and light/dark themes rendered");
+        vm.Tracker.GenerateCommand.Execute(null); await Task.Delay(100);
+        Check(vm.Tracker.IdentityStatus.Contains("DPAPI"), "Tracker identity protected with DPAPI");
+        Check(vm.Tracker.LocationStatus.Contains("尚無定位回報"), "No synthetic tracker coordinates are displayed");
+        Check(vm.Tracker.Capabilities.Contains("NOT verified"), "Tracker network evidence starts unverified");
         File.WriteAllText(Path.Combine(output, "smoke-results.json"), JsonSerializer.Serialize(new { passed = checks.Count, checks, logs = vm.Logs }, ProfileJson.Options));
         window.Close();
     }
@@ -92,6 +101,31 @@ public partial class App : Application
             context.DrawRectangle(new VisualBrush(root), null, new Rect(0, 0, root.ActualWidth, root.ActualHeight));
         }
         bitmap.Render(visual); var encoder = new PngBitmapEncoder(); encoder.Frames.Add(BitmapFrame.Create(bitmap)); using var file = File.Create(path); encoder.Save(file);
+    }
+    private static async Task TrackerHardwareTestAsync(string output)
+    {
+        Directory.CreateDirectory(output); var results = new List<object>();
+        await using var detection = new WindowsBluetoothBackend(); var adapter = await detection.DetectAsync();
+        await Run(new WindowsBluetoothBackend(), new() { Name = "Publisher 28-byte control", PayloadHex = Hex.Format(AdCodec.Encode([AdCodec.Manufacturer(0xFFFF, new byte[24])])) });
+        await Run(new WindowsBluetoothBackend(), new() { Name = "Publisher 31-byte Apple-format fixture", Protocol = ResearchProtocol.AppleFindMy, PayloadHex = AppleFindMyResearch.Preview(new byte[28]).PayloadHex });
+        foreach (var (bytes, extended) in new[] { (1, false), (21, false), (22, false), (21, true), (33, true) })
+        {
+            var data = new byte[bytes]; data[0] = 0x40;
+            await Run(new WindowsGattBackend(), new() { Name = $"GATT FEAA {bytes}-byte ServiceData / extended={extended}", UseExtendedAdvertising = extended, Scannable = true, PayloadHex = Hex.Format(AdCodec.Encode([AdCodec.ServiceData("FEAA", data)])) });
+        }
+        File.WriteAllText(Path.Combine(output, "tracker-hardware-results.json"), JsonSerializer.Serialize(new { testedAt = DateTimeOffset.UtcNow, adapter, cases = results,
+            externalPacketVerified = false, locationReportVerified = false, fixtures = "Unregistered zero-filled research data only; no account secrets or real tracker identities.",
+            limitations = "API lifecycle only. External phone capture must verify UUID width, primary vs Scan Response, flags, full bytes and address. No network tracking is certified." }, ProfileJson.Options));
+        async Task Run(IBluetoothBackend backend, AdvertisementProfile profile)
+        {
+            var events = new List<BackendStatus>(); var sync = new object(); var accepted = false; string? error = null;
+            backend.AdvertisingStatusChanged += (_, e) => { lock (sync) events.Add(e); };
+            try { await backend.StartAdvertisingAsync(profile); accepted = true; await Task.Delay(700); }
+            catch (Exception ex) { error = ex is BluetoothOperationException b ? b.Code + ": " + b.Message : ex.Message; }
+            finally { try { await backend.StopAdvertisingAsync(); await backend.DisposeAsync(); } catch (Exception ex) { error ??= ex.Message; } }
+            BackendStatus[] snapshot; lock (sync) snapshot = events.ToArray();
+            results.Add(new { profile.Name, backend = backend.Name, apiAcceptedAllData = accepted, error, profile.UseExtendedAdvertising, profile.PayloadHex, statuses = snapshot });
+        }
     }
     private static async Task HardwareTestAsync(string output)
     {

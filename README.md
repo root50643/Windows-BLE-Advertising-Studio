@@ -5,6 +5,16 @@
 適用於 Windows 10／11 的開源 BLE 廣播、掃描與協定研究工具。使用 C#、
 .NET 10 LTS、WPF 與 MVVM 架構開發，採用 MIT 授權。
 
+## Windows 電腦追蹤器候選版：1.1.0-rc.1
+
+新增「追蹤器」頁面、原生 Publisher／GATT 後端、DPAPI 身分與桌面憑證、Google EID 每 1024 秒更新、系統匣與睡眠／喚醒恢復，以及 Docker Compose 自架位置服務。**電腦本身負責藍牙廣播**，保留 Windows 原生驅動；不使用 MCU、韌體燒錄或替換驅動。一次選擇一種協定。
+
+本機實測：Apple 格式完整 31-byte Legacy 要求可到達 Publisher `Started`；完整 Google FHN 的 GATT 要求仍得到 `StartedWithoutAllAdvertisementData`，程式明確判定失敗。Apple 的公開金鑰／實際廣播位址尚未通過比對。**兩條路線均未取得「真實追蹤已驗證」狀態。** API 接受、外部封包驗證、可解密定位回報分開記錄，沒有回報就顯示「尚無定位回報」。
+
+既有 **v1.0.0 Release 維持不變**。候選版 EXE／ZIP、自架部署包與 SHA256 由 `scripts/package-tracking.ps1` 產生於 `artifacts/release-tracker`。參閱 [實測與限制](docs/native-tracking-validation.md)、[繁體中文部署說明](deploy/README.md)及 [English deployment guide](deploy/README.en.md)。獨立 Google Adapter 採 GPL-3.0，其他第三方元件見 [授權聲明](THIRD-PARTY-NOTICES.md)。
+
+追蹤器操作：選擇協定 → 建立／匯入自有私鑰 → 確認所有權與測試者同意 → 啟動。自架服務完成授權後，匯入網頁下載的桌面憑證並註冊身分，再查詢位置。Windows 內顯示最後位置與歷史表格；「地圖與手機介面」開啟同一個 HTTPS 地圖。關閉視窗縮至系統匣，從系統匣退出會停止廣播；休眠與關機期間不會廣播。
+
 ## 下載
 
 **[前往 GitHub Releases 下載 Windows 版本](https://github.com/root50643/Windows-BLE-Advertising-Studio/releases)**
@@ -101,8 +111,7 @@ Connectable／Scannable 旗標、MAC 選擇、位址輪替或 Scan Response 編�
 詳見[能力矩陣](docs/windows-capabilities.md)與
 [Microsoft Publisher 文件](https://learn.microsoft.com/en-us/uwp/api/windows.devices.bluetooth.advertisement.bluetoothleadvertisementpublisher)。
 
-Legacy 模式採保守的 **28 bytes** 應用資料預算，包含 AD 長度與類型欄位，
-從 31 bytes 中預留 3 bytes 給 Windows Flags。Extended 模式使用配接器回報的上限，
+Legacy 模式以 **28 bytes** 作保守預算提示，包含 AD 長度與類型欄位；**29–31 bytes 允許受控測試並顯示警告**，超過 31 才拒絕。Windows 可能另外加入 Flags，須以外部封包確認內容。Extended 模式使用配接器回報的上限，
 Windows 仍可能拒絕特定組合。Duration 是應用程式計時後請求 Stop，無法保證控制器的
 實際廣播間隔。偏好發射功率也只是請求，不代表已量測到相同的 RF 功率。
 
@@ -139,9 +148,7 @@ Hex 頁面分別顯示輸入、後端提交、`Started` 確認與外部觀測。
 可預覽 AD 結構與所需的 Static Random Address。長度正確不代表已驗證橢圓曲線點
 或所有權；其他 AirTag 廣播變體也未獲此解析器認證。
 
-Windows 無法設定協定所需、由金鑰導出的 BLE 位址；參考格式的 31-byte Payload
-也超出此後端的保守 Legacy 預算。因此本專案**未實作可完整運作的 Apple Find My
-配件或定位回報流程**，不會登入 Apple 或擷取定位報告。
+Windows 無法設定協定所需、由金鑰導出的 BLE 位址。候選版允許完整 31-byte 的受控 API 測試，並新增自架 Apple 報告 Provider；但位址不匹配仍會阻止網路相容性，不能宣稱完整 AirTag 配件成功。帳號登入由使用者在私有服務端完成。
 參考：[OpenHaystack](https://github.com/seemoo-lab/openhaystack)。
 
 ## Google Find Hub 研究
@@ -151,9 +158,7 @@ FHN v1.3 解析器辨識 `0xFEAA` Service Data、`0x40`／`0x41` Frame Type、
 在符合規格條件時可省略。可使用已授權、事先計算的 EID 建立格式預覽。
 **32-byte 機密 EIK** 可另外匯入加密金鑰庫，不會當成 EID 填入廣播內容。
 
-目前未實作 EIK→EID 推導、密碼學身分驗證、Fast Pair GATT、DULT、帳號登入、
-裝置註冊或定位回報。Windows Publisher 保留必要的 Flags／Service Data，也無法
-同步位址輪替；不會假設未註冊的廣播能直接出現在官方 Find Hub App。
+候選版追蹤器頁實作 secp160r1 EIK→EID 推導，並接上自架服務的自有帳號註冊與報告查詢；研究頁仍可獨立預覽事先計算的 EID。Publisher 保留必要的 Flags／Service Data，因此新增 GATT `ServiceData` 後端測試；資料不足不算成功。Fast Pair 配件認證、DULT、響鈴與位址同步尚未完成；不保證出現在官方 Find Hub App。
 參考：[Google FHN 規格](https://developers.google.com/nearby/fast-pair/specifications/extensions/fmdn)、
 [GoogleFindMyTools](https://github.com/leonboe1/GoogleFindMyTools)。
 

@@ -27,8 +27,8 @@ public sealed class MockBluetoothBackend : IBluetoothBackend
     {
         cancellationToken.ThrowIfCancellationRequested();
         if (AdvertisingState == OperationState.Started) throw new BluetoothOperationException("AlreadyActive", "Mock publisher is active.");
-        var issues = WindowsPayloadPolicy.Validate(p, await DetectAsync(cancellationToken));
-        if (issues.Count > 0) throw new BluetoothOperationException("ValidationFailed", string.Join("; ", issues.Select(x => x.Message)));
+        var issues = WindowsPayloadPolicy.Validate(p, await DetectAsync(cancellationToken)).Where(x => x.Severity == ValidationSeverity.Error).ToArray();
+        if (issues.Length > 0) throw new BluetoothOperationException("ValidationFailed", string.Join("; ", issues.Select(x => x.Message)));
         SetState(OperationState.Starting);
         if (FailStart) { SetState(OperationState.Aborted); throw new BluetoothOperationException("MockFailure", "Simulated publisher error."); }
         SetState(OperationState.Started, Hex.Format(Hex.Parse(p.PayloadHex)));

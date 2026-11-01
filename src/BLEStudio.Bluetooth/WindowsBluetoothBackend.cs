@@ -123,8 +123,8 @@ public sealed class WindowsBluetoothBackend : IBluetoothBackend
             if (_publisher != null) throw new BluetoothOperationException("AlreadyActive", "Stop the current publisher before switching profiles.");
             var p = ProfileJson.Clone(profile);
             var adapter = await DetectAsync(cancellationToken);
-            var issues = WindowsPayloadPolicy.Validate(p, adapter);
-            if (issues.Count > 0) throw new BluetoothOperationException("ValidationFailed", string.Join(Environment.NewLine, issues.Select(x => x.Message)));
+            var issues = WindowsPayloadPolicy.Validate(p, adapter).Where(x => x.Severity == ValidationSeverity.Error).ToArray();
+            if (issues.Length > 0) throw new BluetoothOperationException("ValidationFailed", string.Join(Environment.NewLine, issues.Select(x => x.Message)));
             var advertisement = new BluetoothLEAdvertisement();
             foreach (var ad in AdCodec.Decode(Hex.Parse(p.PayloadHex)))
             {

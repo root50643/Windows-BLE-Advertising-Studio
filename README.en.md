@@ -6,6 +6,16 @@ A Windows 10/11 desktop workbench for editing BLE advertising data, operating
 the Windows BLE publisher and watcher, and inspecting location-network packet
 formats. Built with C# / .NET 10 LTS, WPF and MVVM. MIT licensed.
 
+## Pure-Windows tracker candidate: 1.1.0-rc.1
+
+Adds a Tracker page, native Publisher/GATT backends, DPAPI identities and desktop credentials, 1024-second Google EID rotation, tray execution and suspend/resume recovery, plus a Docker Compose location service. **The PC itself advertises through Windows native Bluetooth drivers.** No MCU, firmware flashing or replacement driver is involved. Only one protocol runs at a time.
+
+On the tested PC, Publisher accepts the full 31-byte Apple-format legacy request. Full FHN GATT requests return `StartedWithoutAllAdvertisementData`, correctly treated as failure. Apple public-key/actual-address compatibility is unverified. **Neither route has passed real network-tracking verification.** API acceptance, external packet evidence and decrypted location reports are separate gates. No reports means “No location reports,” never fabricated coordinates.
+
+The existing **v1.0.0 Release is unchanged**. Run `scripts/package-tracking.ps1` to produce the candidate EXE, ZIP, deployment bundle and SHA256 manifest in `artifacts/release-tracker`. Read the [native results](docs/native-tracking-validation.md), [English deployment guide](deploy/README.en.md) and [繁體中文部署說明](deploy/README.md). The separate Google adapter is GPL-3.0; see [third-party notices](THIRD-PARTY-NOTICES.md).
+
+Select a protocol, create/import an owned private key, confirm ownership/tester consent and Start. After self-hosted provider authorization, import a desktop credential downloaded from the HTTPS owner page and register the identity. Windows shows last locations/history; Map opens the same HTTPS map used on phones. Closing the window hides it to the tray; tray Exit stops advertising. Sleep/hibernation/shutdown do not advertise.
+
 ## Download
 
 **[Download Windows builds from GitHub Releases](https://github.com/root50643/Windows-BLE-Advertising-Studio/releases)**
@@ -97,8 +107,7 @@ or scan flags, MAC selection, address rotation or a scan-response editor.
 See the [capability matrix](docs/windows-capabilities.md) and
 [Microsoft's Publisher reference](https://learn.microsoft.com/en-us/uwp/api/windows.devices.bluetooth.advertisement.bluetoothleadvertisementpublisher).
 
-Legacy input has a conservative 28-byte budget, including AD length/type
-headers, reserving 3 of the 31 legacy bytes for Windows flags. Extended input
+Legacy input uses 28 bytes as a conservative warning threshold, including AD headers. Controlled 29–31-byte tests are allowed with a warning; over 31 bytes is rejected. Windows-generated fields still require external capture. Extended input
 uses the adapter-reported maximum; Windows may still reject a combination.
 Duration is an application Stop timer, not a controller interval guarantee.
 
@@ -139,10 +148,7 @@ Import an authorized 28-byte test public key to preview its AD structure and
 required static-random address. Length validation does not certify a valid
 curve point or ownership. Broader AirTag frame variants are not certified.
 
-Windows cannot set the required key-derived BLE address. The reference
-31-byte payload also exceeds this backend's legacy budget. Therefore this
-project **does not implement a functioning Apple Find My accessory or location
-report pipeline**. It does not log into Apple or retrieve reports. Reference:
+Windows cannot set the required key-derived BLE address. The candidate allows controlled 31-byte tests and adds a self-hosted Apple report provider. Address mismatch still prevents network compatibility; this is not a verified complete AirTag accessory. Account authorization is completed by the owner on the private server. Reference:
 [OpenHaystack](https://github.com/seemoo-lab/openhaystack).
 
 ## Google Find Hub Research
@@ -151,12 +157,9 @@ The FHN v1.3 analyzer recognizes `0xFEAA` service data, frame type `0x40`/`0x41`
 20/32-byte EIDs and hashed flags (required in unwanted-tracking-protection mode,
 optional only under the specification's normal-mode conditions). Preview an authorized, precomputed
 EID; import a 32-byte secret EIK separately to the encrypted vault if required
-for your research records. EIK-to-EID derivation, cryptographic authentication,
-Fast Pair GATT, DULT, account login, enrollment and report retrieval are not
-implemented. The preview is a format fixture, not a provisioned accessory.
+for your research records. The Tracker page separately derives secp160r1 EIDs and connects to self-hosted owned-account registration/report retrieval. The research preview remains a format fixture. Fast Pair accessory certification, DULT and ringing are not implemented.
 
-Windows reserves the required flags/service data and cannot synchronize
-address rotation. Unregistered advertisements are not assumed to appear in
+Publisher reserves required flags/service data; the native GATT backend separately tests ServiceData and rejects partial-data status. Windows cannot synchronize address rotation. Advertisements are not assumed to appear in
 the official Find Hub app. References:
 [Google FHN specification](https://developers.google.com/nearby/fast-pair/specifications/extensions/fmdn),
 [GoogleFindMyTools](https://github.com/leonboe1/GoogleFindMyTools).

@@ -22,6 +22,10 @@ namespace BLEStudio.App;
 public sealed class StudioViewModel : ObservableObject, IAsyncDisposable
 {
     private IBluetoothBackend _backend;
+    private bool _gatt;
+    private readonly SemaphoreSlim _radioOwner = new(1, 1);
+    public TrackerViewModel Tracker { get; }
+    public ICommand SwitchNativeBackendCommand { get; }
     private readonly ProfileStore _profiles;
     private readonly KeyVault _vault;
     private readonly ScanRepository _scan = new();
@@ -41,6 +45,8 @@ public sealed class StudioViewModel : ObservableObject, IAsyncDisposable
     private string _duration = "0", _txPower = "", _profileJsonText = "";
     private bool _mock, _consent, _activeScan = true;
     private DateTimeOffset? _advertisingStarted;
+    private AdvertisementProfile? _lastManualProfile, _resumeManualProfile;
+    private DateTimeOffset? _manualDeadline;
     private IReadOnlyList<string> _profileRevisions = [];
     private string? _selectedRevision;
     private ExternalObservation? _externalObservation;
@@ -159,11 +165,13 @@ public sealed class StudioViewModel : ObservableObject, IAsyncDisposable
         DataDirectory = dataDirectory ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "BLEStudio");
         _profiles = new(Path.Combine(DataDirectory, "profiles")); _vault = new(Path.Combine(DataDirectory, "vault"));
         MockMode = mock; _backend = mock ? new MockBluetoothBackend() : new WindowsBluetoothBackend(); AttachBackend();
+        Tracker = new(DataDirectory, () => MockMode, start => RunRadioOperationAsync(async () => { await _backend.StopAdvertisingAsync(); await start(); }), ReportError);
+        SwitchNativeBackendCommand = Cmd(() => RunRadioOperationAsync(async () => { await Tracker.StopAsync(); await _backend.StopAdvertisingAsync(); await _backend.StopScanningAsync(); DetachBackend(); await _backend.DisposeAsync(); _gatt = !_gatt; MockMode = false; _backend = _gatt ? new WindowsGattBackend() : new WindowsBluetoothBackend(); AttachBackend(); Notify(nameof(BackendName)); await RefreshAdapterAsync(); }));
         DeviceView = CollectionViewSource.GetDefaultView(Devices); DeviceView.Filter = MatchesFilter;
         RefreshAdapterCommand = Cmd(RefreshAdapterAsync);
-        StartAdvertisingCommand = Cmd(StartAdvertisingAsync); StopAdvertisingCommand = Cmd(() => _backend.StopAdvertisingAsync());
+        StartAdvertisingCommand = Cmd(() => RunRadioOperationAsync(StartAdvertisingAsync)); StopAdvertisingCommand = Cmd(() => _backend.StopAdvertisingAsync());
         StartScanningCommand = Cmd(() => _backend.StartScanningAsync(ActiveScan)); StopScanningCommand = Cmd(() => _backend.StopScanningAsync());
-        SwitchBackendCommand = Cmd(SwitchBackendAsync); ToggleThemeCommand = Action(ToggleTheme);
+        SwitchBackendCommand = Cmd(() => RunRadioOperationAsync(SwitchBackendAsync)); ToggleThemeCommand = Action(ToggleTheme);
         AddSectionCommand = Action(() => EditSection(false)); ReplaceSectionCommand = Action(() => EditSection(true));
         RemoveSectionCommand = Action(() => { if (SelectedStructure == null) throw new FormatException("Select a structure first."); InputHex = Hex.Format(AdCodec.Encode(Structures.Where(x => !ReferenceEquals(x, SelectedStructure)).ToArray())); });
         CopyHexCommand = Action(() => Clipboard.SetText(InputHex)); PasteHexCommand = Action(() => InputHex = Clipboard.GetText());
@@ -184,10 +192,16 @@ public sealed class StudioViewModel : ObservableObject, IAsyncDisposable
         _timer = new DispatcherTimer(TimeSpan.FromMilliseconds(400), DispatcherPriority.Background, (_, _) => DrainPackets(), Dispatcher.CurrentDispatcher);
     }
     private UiCommand Cmd(Func<Task> execute) => new(execute, ReportError);
+    private async Task RunRadioOperationAsync(Func<Task> action)
+    {
+        await _radioOwner.WaitAsync();
+        try { await action(); } finally { _radioOwner.Release(); }
+    }
     private UiCommand Action(Action action) => Cmd(() => { action(); return Task.CompletedTask; });
     public async Task InitializeAsync()
     {
         Directory.CreateDirectory(DataDirectory);
+        Tracker.Initialize();
         // Seed only once, so a deliberately deleted template stays deleted.
         var marker = Path.Combine(DataDirectory, "profiles-initialized-v1");
         if (!File.Exists(marker))
@@ -218,7 +232,7 @@ public sealed class StudioViewModel : ObservableObject, IAsyncDisposable
     private void AdvertisingChanged(object? sender, BackendStatus e) => Dispatch(() =>
     {
         AdvertisingState = e.State.ToString(); if (e.StartedAt != null) _advertisingStarted = e.StartedAt;
-        if (e.AcceptedPayloadHex != null) AcceptedHex = $"{DateTimeOffset.Now:O} · {BackendName}\n{e.AcceptedPayloadHex}\nPublisher reported Started; Windows exposes no readback of the transmitted RF payload.";
+        if (e.AcceptedPayloadHex != null) AcceptedHex = $"{DateTimeOffset.Now:O} · {BackendName}\n{e.AcceptedPayloadHex}\nNative backend reported complete Started for this request preview. Windows exposes no RF payload readback; GATT flags and UUID encoding are system generated.";
         Notice = e.Message; Notify(nameof(Uptime)); Notify(nameof(AdvertisingStartTime)); Log("Advertising", e.ErrorCode ?? e.State.ToString(), e.Message);
     });
     private void ScanningChanged(object? sender, BackendStatus e) => Dispatch(() => { ScanningState = e.State.ToString(); Notice = e.Message; Log("Scanner", e.ErrorCode ?? e.State.ToString(), e.Message); });
@@ -250,8 +264,9 @@ public sealed class StudioViewModel : ObservableObject, IAsyncDisposable
     }
     private async Task SwitchBackendAsync()
     {
+        await Tracker.StopAsync();
         await _backend.StopAdvertisingAsync(); await _backend.StopScanningAsync(); DetachBackend(); await _backend.DisposeAsync();
-        MockMode = !MockMode; _backend = MockMode ? new MockBluetoothBackend() : new WindowsBluetoothBackend(); AttachBackend();
+        MockMode = !MockMode; _backend = MockMode ? new MockBluetoothBackend() : _gatt ? new WindowsGattBackend() : new WindowsBluetoothBackend(); AttachBackend();
         _scan.Clear(); Devices.Clear(); SelectedDevice = null;
         while (_incoming.TryDequeue(out _)) Interlocked.Decrement(ref _queued);
         AdvertisingState = ScanningState = "Stopped"; SubmittedHex = "No submission on this backend."; AcceptedHex = "No Started confirmation on this backend.";
@@ -280,7 +295,7 @@ public sealed class StudioViewModel : ObservableObject, IAsyncDisposable
             var bytes = Hex.Parse(InputHex); var ads = AdCodec.Decode(bytes); Structures.Clear(); foreach (var ad in ads) Structures.Add(ad);
             HexDump = Hex.Dump(bytes);
             PayloadStatus = $"{bytes.Length} bytes · {ads.Count} AD structures · {(_draft.UseExtendedAdvertising ? "extended" : "legacy")} budget {WindowsPayloadPolicy.Capacity(_draft, Adapter)} bytes";
-            var issues = WindowsPayloadPolicy.Validate(BuildProfile(), Adapter);
+            var issues = _backend.ValidateProfile(BuildProfile(), Adapter);
             Validation = issues.Count == 0 ? "Ready to submit. Windows acceptance and RF reception are separate checks." : string.Join("\n", issues.Select(x => $"• {x.Field}: {x.Message}"));
         }
         catch (Exception ex) when (ex is FormatException or JsonException or OverflowException)
@@ -295,20 +310,45 @@ public sealed class StudioViewModel : ObservableObject, IAsyncDisposable
     }
     private async Task StartAdvertisingAsync()
     {
+        await Tracker.StopAsync();
         var profile = BuildProfile();
-        var issues = WindowsPayloadPolicy.Validate(profile, Adapter);
-        if (issues.Count > 0) throw new BluetoothOperationException("ValidationFailed", string.Join("\n", issues.Select(x => x.Message)));
+        var issues = _backend.ValidateProfile(profile, Adapter).Where(x => x.Severity == ValidationSeverity.Error).ToArray();
+        if (issues.Length > 0) throw new BluetoothOperationException("ValidationFailed", string.Join("\n", issues.Select(x => x.Message)));
         if (ProtocolResearch.IsResearchPayload(profile))
         {
             if (!ResearchConsent) throw new BluetoothOperationException("ResearchConsentRequired", "Confirm ownership and informed tester consent in Protocol Research before transmitting research frames.");
             if (profile.DurationSeconds is <= 0 or > 300) throw new BluetoothOperationException("ResearchDuration", "Research transmissions require a duration from 1 to 300 seconds. Reassess before each session.");
         }
-        var plan = AdCodec.Decode(Hex.Parse(profile.PayloadHex)).Select(ad => ad.Type == 0xFF
+        var plan = _gatt && !MockMode ? new[] { $"GattServiceProvider UUID: {GattPayloadPolicy.Build(profile).ServiceUuid}; ServiceData: {Hex.Format(GattPayloadPolicy.Build(profile).ServiceData)}; IsConnectable: {profile.Connectable ?? false}; IsDiscoverable: {profile.Scannable ?? true}; flags are generated by Windows." } : AdCodec.Decode(Hex.Parse(profile.PayloadHex)).Select(ad => ad.Type == 0xFF
             ? $"ManufacturerData: company=0x{ad.Data[0] | ad.Data[1] << 8:X4}, data=[{Hex.Format(ad.Data.AsSpan(2))}]"
             : $"DataSections: type=0x{ad.Type:X2}, data=[{ad.HexData}]");
         SubmittedHex = $"{DateTimeOffset.Now:O} · {BackendName} · {profile.Name}\n{Hex.Format(Hex.Parse(profile.PayloadHex))}\nAPI request fields:\n{string.Join("\n", plan)}\nWindows controls on-air section ordering and additional fields.";
-        AcceptedHex = "Awaiting Publisher Started confirmation for this submission.";
+        AcceptedHex = "Awaiting complete native backend Started confirmation for this submission.";
         await _backend.StartAdvertisingAsync(profile);
+        _lastManualProfile = ProfileJson.Clone(profile); _manualDeadline = profile.DurationSeconds > 0 ? DateTimeOffset.UtcNow.AddSeconds(profile.DurationSeconds) : null;
+    }
+    public async Task SuspendAsync()
+    {
+        _resumeManualProfile = AdvertisingState == "Started" && _lastManualProfile != null ? ProfileJson.Clone(_lastManualProfile) : null;
+        await Tracker.SuspendAsync(); await _backend.StopAdvertisingAsync();
+        Notice = "Suspended: no Bluetooth advertising during sleep/hibernation. Previous active mode will be checked on resume.";
+    }
+    public async Task ResumeAsync()
+    {
+        if (Tracker.RequestedActive) { await Tracker.ResumeAsync(); return; }
+        var resume = _resumeManualProfile; _resumeManualProfile = null;
+        if (resume == null) return;
+        await RunRadioOperationAsync(async () =>
+        {
+            if (_manualDeadline is { } deadline)
+            {
+                var remaining = (int)(deadline - DateTimeOffset.UtcNow).TotalSeconds;
+                if (remaining <= 0) { Notice = "Previous timed advertising session expired during sleep."; return; }
+                resume.DurationSeconds = remaining;
+            }
+            await RefreshAdapterAsync(); await _backend.StartAdvertisingAsync(resume);
+            Notice = "Previous active advertising mode was rechecked and resumed.";
+        });
     }
     private static ushort ParseNumber(string value) => value.Trim().StartsWith("0x", StringComparison.OrdinalIgnoreCase) ? Convert.ToUInt16(value.Trim()[2..], 16) : ushort.Parse(value, CultureInfo.InvariantCulture);
     private AdStructure MakeSection()
@@ -506,5 +546,5 @@ public sealed class StudioViewModel : ObservableObject, IAsyncDisposable
     {
         _light = !_light; Application.Current.Resources.MergedDictionaries[0] = new ResourceDictionary { Source = new Uri($"Themes/{(_light ? "Light" : "Dark")}.xaml", UriKind.Relative) };
     }
-    public async ValueTask DisposeAsync() { _timer.Stop(); await _backend.DisposeAsync(); DetachBackend(); }
+    public async ValueTask DisposeAsync() { _timer.Stop(); await Tracker.DisposeAsync(); await _backend.DisposeAsync(); DetachBackend(); }
 }

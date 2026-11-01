@@ -10,10 +10,12 @@
       <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
         <Border BorderBrush="{DynamicResource Stroke}" BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,0,12,8"><TextBlock Text="{Binding ModeLabel}" Foreground="{StaticResource Accent}" FontSize="12" FontWeight="SemiBold" /></Border>
         <Button Content="{DynamicResource UI_Switch_backend}" Command="{Binding SwitchBackendCommand}" ToolTip="{DynamicResource UI_Stops_active_operations_and_switches_between_Windows_BL}" />
+        <Button Content="Publisher ↔ GATT" Command="{Binding SwitchNativeBackendCommand}" />
         <Button Content="{DynamicResource UI_Light_dark}" Command="{Binding ToggleThemeCommand}" />
       </StackPanel>
     </Grid>
     <TabControl x:Name="Sections" Grid.Row="1" TabStripPlacement="Left" BorderThickness="0" Background="Transparent">
+
       <TabControl.Template><ControlTemplate TargetType="TabControl"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="205" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions><StackPanel><TabPanel IsItemsHost="True" /><TextBlock Text="{DynamicResource UI_v1_0_0_Windows_Runtime_10_One_publisher_explicit_capabi}" Foreground="{DynamicResource Muted}" FontSize="11" Margin="18,28,8,0" /></StackPanel><Border Grid.Column="1" Margin="20,0,0,0" TextElement.Foreground="{DynamicResource Text}"><ContentPresenter ContentSource="SelectedContent" /></Border></Grid></ControlTemplate></TabControl.Template>
       <TabItem Header="{DynamicResource UI_01_Dashboard}">
         <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel>
@@ -112,6 +114,32 @@
           <Border Grid.Row="1" Style="{StaticResource Card}"><StackPanel><TextBlock Text="{Binding BackendName}" FontWeight="SemiBold" /><TextBlock Text="{Binding Adapter.OperatingSystem}" /><TextBlock Text="{Binding Adapter.DeviceId, StringFormat=Device ID: {0}}" FontSize="12" /><TextBlock Text="{Binding Adapter.PnpDeviceId, StringFormat=PnP ID: {0}}" FontSize="12" /><TextBlock Text="{Binding Adapter.DriverVersion, StringFormat=Driver version: {0}}" FontSize="12" /><TextBlock Text="{Binding DataDirectory, StringFormat=Local data: {0}}" FontSize="12" /></StackPanel></Border>
           <DataGrid Grid.Row="2" ItemsSource="{Binding Logs}" RowHeight="NaN"><DataGrid.Columns><DataGridTextColumn Header="{DynamicResource UI_Time}" Binding="{Binding Timestamp, StringFormat=HH:mm:ss.fff}" Width="110" /><DataGridTextColumn Header="{DynamicResource UI_Category}" Binding="{Binding Category}" Width="100" /><DataGridTextColumn Header="{DynamicResource UI_Code_state}" Binding="{Binding Code}" Width="135" /><DataGridTextColumn Header="{DynamicResource UI_Description}" Binding="{Binding Message}" Width="*"><DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="TextWrapping" Value="Wrap" /><Setter Property="Padding" Value="5,6" /></Style></DataGridTextColumn.ElementStyle></DataGridTextColumn></DataGrid.Columns></DataGrid>
         </Grid>
+      </TabItem>
+      <TabItem Header="08  追蹤器 / Tracker">
+        <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel DataContext="{Binding Tracker}">
+          <TextBlock Text="電腦藍牙追蹤器 / PC Bluetooth tracker" Style="{StaticResource Title}" />
+          <TextBlock Text="Windows 原生驅動 · 一次一種協定 · MAC 與位址輪替由 Windows 管理" Style="{StaticResource Caption}" />
+          <Border Style="{StaticResource Card}"><StackPanel>
+            <TextBlock Text="電腦必須保持開機。關閉視窗會縮至系統匣；系統匣「退出」會停止廣播。睡眠／休眠／關機時不會廣播，喚醒後重新檢查並恢復先前啟用的模式。" TextWrapping="Wrap" />
+            <WrapPanel Margin="0,12,0,4"><ComboBox ItemsSource="{Binding Protocols}" SelectedItem="{Binding Protocol}" Width="205" /><TextBox Text="{Binding TrackerName, UpdateSourceTrigger=PropertyChanged}" Width="190" /><CheckBox Content="要求 Extended（需外部驗證）" IsChecked="{Binding Extended}" VerticalAlignment="Center" /></WrapPanel>
+            <CheckBox Content="身分與帳號皆為本人所有，且已取得附近測試者同意 / I own this identity and have tester consent" IsChecked="{Binding Consent}" Margin="0,7" />
+            <WrapPanel><Button Content="啟動 / Start" Command="{Binding StartCommand}" Style="{StaticResource PrimaryButton}" /><Button Content="停止 / Stop" Command="{Binding StopCommand}" /><Button Content="建立新身分 / New identity" Command="{Binding GenerateCommand}" /><Button Content="匯入私鑰 / Import owned key" Command="{Binding ImportKeyCommand}" /><Button Content="匯入手機封包 / Verify capture" Command="{Binding ImportEvidenceCommand}" /></WrapPanel>
+            <TextBlock Text="{Binding Status}" TextWrapping="Wrap" Foreground="{StaticResource Accent}" Margin="0,10" />
+            <TextBlock Text="{Binding IdentityStatus}" TextWrapping="Wrap" FontFamily="Consolas" />
+            <ComboBox ItemsSource="{Binding SavedIdentities}" SelectedItem="{Binding SelectedIdentity}" DisplayMemberPath="Id" ToolTip="選擇此協定已儲存的身分 / Select a saved identity" HorizontalAlignment="Left" MinWidth="330" Margin="0,10,0,0" />
+          </StackPanel></Border>
+          <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition /></Grid.ColumnDefinitions>
+            <Border Style="{StaticResource Card}"><StackPanel><TextBlock Text="分層能力驗證 / Evidence gates" FontSize="18" Margin="0,0,0,10" /><TextBlock Text="{Binding Capabilities}" TextWrapping="Wrap" /><TextBlock Text="封包僅為使用者匯入的外部證據；API Started 不代表完整 AirTag／Google 網路追蹤成功。" TextWrapping="Wrap" Foreground="{DynamicResource Muted}" Margin="0,12,0,0" /></StackPanel></Border>
+            <Border Grid.Column="1" Style="{StaticResource Card}"><StackPanel><TextBlock Text="本次廣播要求 / Current request" FontSize="18" Margin="0,0,0,10" /><TextBox Text="{Binding Payload, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" FontFamily="Consolas" MinHeight="85" /><TextBlock Text="Google：驗證 FEAA 的 UUID 寬度、主廣播內容及 EID 更新。Apple：必須比對金鑰與真正廣播位址。" TextWrapping="Wrap" Foreground="{DynamicResource Muted}" Margin="0,10,0,0" /></StackPanel></Border>
+          </Grid>
+          <Border Style="{StaticResource Card}"><StackPanel>
+            <TextBlock Text="自架位置服務 / Self-hosted location service" FontSize="18" />
+            <TextBox Text="{Binding ServiceUrl, Mode=OneWay}" IsReadOnly="True" Margin="0,10" ToolTip="由伺服器下載的桌面憑證決定 HTTPS 服務網址" />
+            <WrapPanel><Button Content="匯入桌面憑證 / Connect" Command="{Binding ConnectCommand}" /><Button Content="移除本機憑證 / Disconnect" Command="{Binding DisconnectCommand}" /><Button Content="註冊身分 / Register" Command="{Binding RegisterCommand}" /><Button Content="查詢真實回報 / Refresh" Command="{Binding RefreshCommand}" /><Button Content="地圖與手機介面 / Map" Command="{Binding OpenMapCommand}" /></WrapPanel>
+            <TextBlock Text="{Binding LocationStatus}" Margin="0,12" TextWrapping="Wrap" />
+            <DataGrid ItemsSource="{Binding Reports}" MaxHeight="270"><DataGrid.Columns><DataGridTextColumn Header="時間 / Time" Binding="{Binding ObservedAt}" Width="190" /><DataGridTextColumn Header="緯度 / Latitude" Binding="{Binding Latitude}" Width="*" /><DataGridTextColumn Header="經度 / Longitude" Binding="{Binding Longitude}" Width="*" /><DataGridTextColumn Header="誤差 m" Binding="{Binding AccuracyMeters}" Width="85" /><DataGridTextColumn Header="來源 / Source" Binding="{Binding Source}" Width="150" /></DataGrid.Columns></DataGrid>
+          </StackPanel></Border>
+        </StackPanel></ScrollViewer>
       </TabItem>
     </TabControl>
     <Border Grid.Row="2" Background="{DynamicResource Surface}" CornerRadius="6" BorderBrush="{DynamicResource Stroke}" BorderThickness="1" Padding="12,8" Margin="0,16,0,0"><TextBlock Text="{Binding Notice}" FontSize="12" MaxHeight="70" TextTrimming="CharacterEllipsis" /></Border>

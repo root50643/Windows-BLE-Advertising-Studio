@@ -1,0 +1,407 @@
+{
+  "testedAt": "2026-11-01T22:37:37.4833287+08:00",
+  "adapter": {
+    "name": "Intel(R) Wireless Bluetooth(R)",
+    "deviceId": "Redacted from public report",
+    "pnpDeviceId": "Redacted from public report",
+    "driverVersion": "22.150.0.6",
+    "operatingSystem": "Microsoft Windows NT 10.0.26300.0",
+    "radioState": "On",
+    "isMock": false,
+    "available": true,
+    "canAdvertise": true,
+    "canScan": true,
+    "extendedAdvertising": true,
+    "maxExtendedLength": 160,
+    "features": [
+      {
+        "feature": "Manufacturer data",
+        "status": "RequiresVerification",
+        "reason": "0xFF is allowed by Publisher. Radio, payload size and policy must still accept it."
+      },
+      {
+        "feature": "Custom AD types",
+        "status": "RequiresVerification",
+        "reason": "Only non-reserved types may be submitted. API acceptance is measured on Start."
+      },
+      {
+        "feature": "Local name / flags / service UUIDs / service data / solicitation / appearance",
+        "status": "Unsupported",
+        "reason": "Reserved AD types in BluetoothLEAdvertisementPublisher. Available for editing, parsing and export."
+      },
+      {
+        "feature": "Advertising interval",
+        "status": "Unsupported",
+        "reason": "Windows advertising policy schedules broadcasts; Publisher has no interval property."
+      },
+      {
+        "feature": "Connectable / scannable type",
+        "status": "Unsupported",
+        "reason": "Publisher does not expose these flags. GATT advertising is a different backend."
+      },
+      {
+        "feature": "MAC address / address type / rotation",
+        "status": "Unsupported",
+        "reason": "Controlled by Windows. Publisher cannot select or synchronize addresses."
+      },
+      {
+        "feature": "Scan response",
+        "status": "Unsupported",
+        "reason": "No public Publisher scan-response configuration API."
+      },
+      {
+        "feature": "Duration",
+        "status": "Supported",
+        "reason": "Application timer requests Stop. This is not a controller timing guarantee."
+      },
+      {
+        "feature": "Concurrent protocol advertising",
+        "status": "Unknown",
+        "reason": "This application uses one publisher and switches profiles sequentially."
+      },
+      {
+        "feature": "Over-the-air payload equality",
+        "status": "RequiresVerification",
+        "reason": "Only an independent capture can establish transmitted bytes."
+      },
+      {
+        "feature": "BLE advertising",
+        "status": "Supported",
+        "reason": "Based on adapter LE and peripheral-role flags. Publisher Started still requires a runtime check."
+      },
+      {
+        "feature": "BLE scanning",
+        "status": "Supported",
+        "reason": "LE adapter flag; watcher may still be denied by policy."
+      },
+      {
+        "feature": "Extended advertising",
+        "status": "Supported",
+        "reason": "Reported by BluetoothAdapter, not inferred from model."
+      },
+      {
+        "feature": "Header TX power",
+        "status": "RequiresVerification",
+        "reason": "API presence + extended adapter flag. Actual header/power requires independent measurement."
+      },
+      {
+        "feature": "Preferred TX power",
+        "status": "RequiresVerification",
+        "reason": "API presence + extended adapter flag. Actual header/power requires independent measurement."
+      },
+      {
+        "feature": "Anonymous",
+        "status": "RequiresVerification",
+        "reason": "API presence + extended adapter flag. Actual header/power requires independent measurement."
+      },
+      {
+        "feature": "PHY selection",
+        "status": "RequiresVerification",
+        "reason": "Requires extended advertising, runtime PHY properties and controller support."
+      },
+      {
+        "feature": "LE Coded PHY",
+        "status": "Supported",
+        "reason": "Adapter PHY capability property, if available on this Windows build."
+      },
+      {
+        "feature": "LE 2M PHY",
+        "status": "Supported",
+        "reason": "Adapter PHY capability property, if available on this Windows build."
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "Publisher 28-byte control",
+      "backend": "Windows Runtime BLE",
+      "apiAcceptedAllData": true,
+      "error": null,
+      "useExtendedAdvertising": false,
+      "payloadHex": "1B FF FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00",
+      "statuses": [
+        {
+          "state": "Starting",
+          "message": "Waiting for Windows Publisher status.",
+          "errorCode": null,
+          "startedAt": null,
+          "acceptedPayloadHex": null
+        },
+        {
+          "state": "Waiting",
+          "message": "Windows Publisher: Waiting. This does not verify reception or location reports.",
+          "errorCode": null,
+          "startedAt": null,
+          "acceptedPayloadHex": null
+        },
+        {
+          "state": "Started",
+          "message": "Windows Publisher: Started. This does not verify reception or location reports.",
+          "errorCode": null,
+          "startedAt": "2026-11-01T22:37:35.8574856+08:00",
+          "acceptedPayloadHex": "1B FF FF FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"
+        },
+        {
+          "state": "Stopped",
+          "message": "Windows Publisher: Stopped. This does not verify reception or location reports.",
+          "errorCode": null,
+          "startedAt": "2026-11-01T22:37:35.8574856+08:00",
+          "acceptedPayloadHex": null
+        },
+        {
+          "state": "Stopped",
+          "message": "Publisher stopped.",
+          "errorCode": null,
+          "startedAt": null,
+          "acceptedPayloadHex": null
+        }
+      ]
+    },
+    {
+      "name": "Publisher 31-byte Apple-format fixture",
+      "backend": "Windows Runtime BLE",
+      "apiAcceptedAllData": true,
+      "error": null,
+      "useExtendedAdvertising": false,
+      "payloadHex": "1E FF 4C 00 12 19 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00",
+      "statuses": [
+        {
+          "state": "Starting",
+          "message": "Waiting for Windows Publisher status.",
+          "errorCode": null,
+          "startedAt": null,
+          "acceptedPayloadHex": null
+        },
+        {
+          "state": "Waiting",
+          "message": "Windows Publisher: Waiting. This does not verify reception or location reports.",
+          "errorCode": null,
+          "startedAt": null,
+          "acceptedPayloadHex": null
+        },
+        {
+          "state": "Started",
+          "message": "Windows Publisher: Started. This does not verify reception or location reports.",
+          "errorCode": null,
+          "startedAt": "2026-11-01T22:37:36.60105+08:00",
+          "acceptedPayloadHex": "1E FF 4C 00 12 19 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"
+        },
+        {
+          "state": "Stopped",
+          "message": "Windows Publisher: Stopped. This does not verify reception or location reports.",
+          "errorCode": null,
+          "startedAt": "2026-11-01T22:37:36.60105+08:00",
+          "acceptedPayloadHex": null
+        },
+        {
+          "state": "Stopped",
+          "message": "Publisher stopped.",
+          "errorCode": null,
+          "startedAt": null,
+          "acceptedPayloadHex": null
+        }
+      ]
+    },
+    {
+      "name": "GATT FEAA 1-byte ServiceData / extended=False",
+      "backend": "Windows native GATT ServiceData",
+      "apiAcceptedAllData": false,
+      "error": "IncompleteAdvertisement: Windows started without all requested advertisement data. This is not a complete FHN advertisement and cannot verify tracking.",
+      "useExtendedAdvertising": false,
+      "payloadHex": "04 16 AA FE 40",
+      "statuses": [
+        {
+          "state": "Starting",
+          "message": "GATT request: service 0000feaa-0000-1000-8000-00805f9b34fb, 1 service-data bytes. Windows generates UUID encoding and flags.",
+          "errorCode": null,
+          "startedAt": null,
+          "acceptedPayloadHex": null
+        },
+        {
+          "state": "Waiting",
+          "message": "GATT intermediate Aborted/Success; awaiting a complete start result.",
+          "errorCode": null,
+          "startedAt": null,
+          "acceptedPayloadHex": null
+        },
+        {
+          "state": "Aborted",
+          "message": "GATT StartedWithoutAllAdvertisementData: Success. UUID encoding, primary/scan-response placement and RF bytes remain unverified.",
+          "errorCode": "IncompleteAdvertisement",
+          "startedAt": null,
+          "acceptedPayloadHex": null
+        },
+        {
+          "state": "Started",
+          "message": "GATT Started: Success. UUID encoding, primary/scan-response placement and RF bytes remain unverified.",
+          "errorCode": null,
+          "startedAt": "2026-11-01T22:37:37.3651822+08:00",
+          "acceptedPayloadHex": "04 16 AA FE 40"
+        },
+        {
+          "state": "Aborted",
+          "message": "Windows started without all requested advertisement data. This is not a complete FHN advertisement and cannot verify tracking.",
+          "errorCode": "IncompleteAdvertisement",
+          "startedAt": null,
+          "acceptedPayloadHex": null
+        }
+      ]
+    },
+    {
+      "name": "GATT FEAA 21-byte ServiceData / extended=False",
+      "backend": "Windows native GATT ServiceData",
+      "apiAcceptedAllData": false,
+      "error": "IncompleteAdvertisement: Windows started without all requested advertisement data. This is not a complete FHN advertisement and cannot verify tracking.",
+      "useExtendedAdvertising": false,
+      "payloadHex": "18 16 AA FE 40 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00",
+      "statuses": [
+        {
+          "state": "Starting",
+          "message": "GATT request: service 0000feaa-0000-1000-8000-00805f9b34fb, 21 service-data bytes. Windows generates UUID encoding and flags.",
+          "errorCode": null,
+          "startedAt": null,
+          "acceptedPayloadHex": null
+        },
+        {
+          "state": "Waiting",
+          "message": "GATT intermediate Aborted/Success; awaiting a complete start result.",
+          "errorCode": null,
+          "startedAt": null,
+          "acceptedPayloadHex": null
+        },
+        {
+          "state": "Aborted",
+          "message": "GATT StartedWithoutAllAdvertisementData: Success. UUID encoding, primary/scan-response placement and RF bytes remain unverified.",
+          "errorCode": "IncompleteAdvertisement",
+          "startedAt": null,
+          "acceptedPayloadHex": null
+        },
+        {
+          "state": "Aborted",
+          "message": "Windows started without all requested advertisement data. This is not a complete FHN advertisement and cannot verify tracking.",
+          "errorCode": "IncompleteAdvertisement",
+          "startedAt": null,
+          "acceptedPayloadHex": null
+        }
+      ]
+    },
+    {
+      "name": "GATT FEAA 22-byte ServiceData / extended=False",
+      "backend": "Windows native GATT ServiceData",
+      "apiAcceptedAllData": false,
+      "error": "IncompleteAdvertisement: Windows started without all requested advertisement data. This is not a complete FHN advertisement and cannot verify tracking.",
+      "useExtendedAdvertising": false,
+      "payloadHex": "19 16 AA FE 40 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00",
+      "statuses": [
+        {
+          "state": "Starting",
+          "message": "GATT request: service 0000feaa-0000-1000-8000-00805f9b34fb, 22 service-data bytes. Windows generates UUID encoding and flags.",
+          "errorCode": null,
+          "startedAt": null,
+          "acceptedPayloadHex": null
+        },
+        {
+          "state": "Waiting",
+          "message": "GATT intermediate Aborted/Success; awaiting a complete start result.",
+          "errorCode": null,
+          "startedAt": null,
+          "acceptedPayloadHex": null
+        },
+        {
+          "state": "Aborted",
+          "message": "GATT StartedWithoutAllAdvertisementData: Success. UUID encoding, primary/scan-response placement and RF bytes remain unverified.",
+          "errorCode": "IncompleteAdvertisement",
+          "startedAt": null,
+          "acceptedPayloadHex": null
+        },
+        {
+          "state": "Aborted",
+          "message": "Windows started without all requested advertisement data. This is not a complete FHN advertisement and cannot verify tracking.",
+          "errorCode": "IncompleteAdvertisement",
+          "startedAt": null,
+          "acceptedPayloadHex": null
+        }
+      ]
+    },
+    {
+      "name": "GATT FEAA 21-byte ServiceData / extended=True",
+      "backend": "Windows native GATT ServiceData",
+      "apiAcceptedAllData": false,
+      "error": "IncompleteAdvertisement: Windows started without all requested advertisement data. This is not a complete FHN advertisement and cannot verify tracking.",
+      "useExtendedAdvertising": true,
+      "payloadHex": "18 16 AA FE 40 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00",
+      "statuses": [
+        {
+          "state": "Starting",
+          "message": "GATT request: service 0000feaa-0000-1000-8000-00805f9b34fb, 21 service-data bytes. Windows generates UUID encoding and flags.",
+          "errorCode": null,
+          "startedAt": null,
+          "acceptedPayloadHex": null
+        },
+        {
+          "state": "Waiting",
+          "message": "GATT intermediate Aborted/Success; awaiting a complete start result.",
+          "errorCode": null,
+          "startedAt": null,
+          "acceptedPayloadHex": null
+        },
+        {
+          "state": "Aborted",
+          "message": "GATT StartedWithoutAllAdvertisementData: Success. UUID encoding, primary/scan-response placement and RF bytes remain unverified.",
+          "errorCode": "IncompleteAdvertisement",
+          "startedAt": null,
+          "acceptedPayloadHex": null
+        },
+        {
+          "state": "Aborted",
+          "message": "Windows started without all requested advertisement data. This is not a complete FHN advertisement and cannot verify tracking.",
+          "errorCode": "IncompleteAdvertisement",
+          "startedAt": null,
+          "acceptedPayloadHex": null
+        }
+      ]
+    },
+    {
+      "name": "GATT FEAA 33-byte ServiceData / extended=True",
+      "backend": "Windows native GATT ServiceData",
+      "apiAcceptedAllData": false,
+      "error": "IncompleteAdvertisement: Windows started without all requested advertisement data. This is not a complete FHN advertisement and cannot verify tracking.",
+      "useExtendedAdvertising": true,
+      "payloadHex": "24 16 AA FE 40 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00",
+      "statuses": [
+        {
+          "state": "Starting",
+          "message": "GATT request: service 0000feaa-0000-1000-8000-00805f9b34fb, 33 service-data bytes. Windows generates UUID encoding and flags.",
+          "errorCode": null,
+          "startedAt": null,
+          "acceptedPayloadHex": null
+        },
+        {
+          "state": "Waiting",
+          "message": "GATT intermediate Aborted/Success; awaiting a complete start result.",
+          "errorCode": null,
+          "startedAt": null,
+          "acceptedPayloadHex": null
+        },
+        {
+          "state": "Aborted",
+          "message": "GATT StartedWithoutAllAdvertisementData: Success. UUID encoding, primary/scan-response placement and RF bytes remain unverified.",
+          "errorCode": "IncompleteAdvertisement",
+          "startedAt": null,
+          "acceptedPayloadHex": null
+        },
+        {
+          "state": "Aborted",
+          "message": "Windows started without all requested advertisement data. This is not a complete FHN advertisement and cannot verify tracking.",
+          "errorCode": "IncompleteAdvertisement",
+          "startedAt": null,
+          "acceptedPayloadHex": null
+        }
+      ]
+    }
+  ],
+  "externalPacketVerified": false,
+  "locationReportVerified": false,
+  "fixtures": "Unregistered zero-filled research data only; no account secrets or real tracker identities.",
+  "limitations": "API lifecycle only. External phone capture must verify UUID width, primary vs Scan Response, flags, full bytes and address. No network tracking is certified."
+}
