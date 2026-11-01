@@ -1,0 +1,143 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+  <sys:String x:Key="UI_Windows_BLE_Advertising_Studio" xml:space="preserve">Windows BLE Advertising Studio</sys:String>
+  <sys:String x:Key="UI_" xml:space="preserve">ᛒ</sys:String>
+  <sys:String x:Key="UI_BLE_STUDIO" xml:space="preserve">BLE STUDIO</sys:String>
+  <sys:String x:Key="UI_Advertising_Scanning_Protocol_research" xml:space="preserve">Advertising · Scanning · Protocol research</sys:String>
+  <sys:String x:Key="UI_Switch_backend" xml:space="preserve">Switch backend</sys:String>
+  <sys:String x:Key="UI_Stops_active_operations_and_switches_between_Windows_BL" xml:space="preserve">Stops active operations and switches between Windows BLE and the explicit mock simulator.</sys:String>
+  <sys:String x:Key="UI_Light_dark" xml:space="preserve">Light / dark</sys:String>
+  <sys:String x:Key="UI_v1_0_0_Windows_Runtime_10_One_publisher_explicit_capabi" xml:space="preserve">v1.0.0 · Windows Runtime&#10;One publisher · explicit capabilities</sys:String>
+  <sys:String x:Key="UI_01_Dashboard" xml:space="preserve">01   Dashboard</sys:String>
+  <sys:String x:Key="UI_Your_Bluetooth_workspace" xml:space="preserve">Your Bluetooth workspace</sys:String>
+  <sys:String x:Key="UI_Controller_capabilities_operation_state_and_recent_prof" xml:space="preserve">Controller capabilities, operation state and recent profiles in one place.</sys:String>
+  <sys:String x:Key="UI_BLUETOOTH_ADAPTER" xml:space="preserve">BLUETOOTH ADAPTER</sys:String>
+  <sys:String x:Key="UI_ADVERTISING" xml:space="preserve">ADVERTISING</sys:String>
+  <sys:String x:Key="UI_Publisher_state_does_not_prove_RF_reception" xml:space="preserve">Publisher state does not prove RF reception.</sys:String>
+  <sys:String x:Key="UI_SCANNER" xml:space="preserve">SCANNER</sys:String>
+  <sys:String x:Key="UI_Start_advertising" xml:space="preserve">Start advertising</sys:String>
+  <sys:String x:Key="UI_Stop_advertising" xml:space="preserve">Stop advertising</sys:String>
+  <sys:String x:Key="UI_Start_scanning" xml:space="preserve">Start scanning</sys:String>
+  <sys:String x:Key="UI_Stop_scanning" xml:space="preserve">Stop scanning</sys:String>
+  <sys:String x:Key="UI_Refresh_adapter" xml:space="preserve">Refresh adapter</sys:String>
+  <sys:String x:Key="UI_Controller_amp_API_capabilities" xml:space="preserve">Controller &amp; API capabilities</sys:String>
+  <sys:String x:Key="UI_Feature" xml:space="preserve">Feature</sys:String>
+  <sys:String x:Key="UI_Status" xml:space="preserve">Status</sys:String>
+  <sys:String x:Key="UI_Evidence_limitation" xml:space="preserve">Evidence / limitation</sys:String>
+  <sys:String x:Key="UI_Recent_profiles" xml:space="preserve">Recent profiles</sys:String>
+  <sys:String x:Key="UI_02_Advertising_editor" xml:space="preserve">02   Advertising editor</sys:String>
+  <sys:String x:Key="UI_Build_an_advertisement" xml:space="preserve">Build an advertisement</sys:String>
+  <sys:String x:Key="UI_Edit_AD_structures_freely_Windows_reserved_structures_s" xml:space="preserve">Edit AD structures freely. Windows-reserved structures stay available for analysis and export.</sys:String>
+  <sys:String x:Key="UI_General_settings" xml:space="preserve">General settings</sys:String>
+  <sys:String x:Key="UI_Profile_name" xml:space="preserve">Profile name</sys:String>
+  <sys:String x:Key="UI_Protocol_independent_test_profile" xml:space="preserve">Protocol / independent test profile</sys:String>
+  <sys:String x:Key="UI_Extended_advertising" xml:space="preserve">Extended advertising</sys:String>
+  <sys:String x:Key="UI_Requires_the_adapter_s_extended_advertising_flag_Legacy" xml:space="preserve">Requires the adapter's extended advertising flag. Legacy data budget is conservatively 28 bytes.</sys:String>
+  <sys:String x:Key="UI_Include_TX_power_in_extended_header" xml:space="preserve">Include TX power in extended header</sys:String>
+  <sys:String x:Key="UI_Anonymous_extended_advertising" xml:space="preserve">Anonymous extended advertising</sys:String>
+  <sys:String x:Key="UI_Preferred_TX_power_dBm" xml:space="preserve">Preferred TX power (dBm)</sys:String>
+  <sys:String x:Key="UI_A_request_not_a_guaranteed_RF_measurement_Empty_system_" xml:space="preserve">A request, not a guaranteed RF measurement. Empty = system default.</sys:String>
+  <sys:String x:Key="UI_Duration_seconds" xml:space="preserve">Duration (seconds)</sys:String>
+  <sys:String x:Key="UI_0_manual_stop_Application_timer_research_sessions_requi" xml:space="preserve">0 = manual stop. Application timer; research sessions require 1–300 seconds.</sys:String>
+  <sys:String x:Key="UI_Primary_PHY" xml:space="preserve">Primary PHY</sys:String>
+  <sys:String x:Key="UI_Secondary_PHY" xml:space="preserve">Secondary PHY</sys:String>
+  <sys:String x:Key="UI_Advertising_interval_type_MAC_address_rotation_scan_res" xml:space="preserve">Advertising interval · type · MAC · address rotation · scan response</sys:String>
+  <sys:String x:Key="UI_Unsupported_controlled_by_Windows_advertising_policy_Lo" xml:space="preserve">Unsupported: controlled by Windows advertising policy. Local name, service UUIDs, service data, flags, solicitation and appearance are reserved by Publisher. Desired settings can be inspected in Profile JSON.</sys:String>
+  <sys:String x:Key="UI_AD_structure_builder" xml:space="preserve">AD structure builder</sys:String>
+  <sys:String x:Key="UI_Structure_kind" xml:space="preserve">Structure kind</sys:String>
+  <sys:String x:Key="UI_Manufacturer_company_ID_0xHEX_or_decimal" xml:space="preserve">Manufacturer company ID (0xHEX or decimal)</sys:String>
+  <sys:String x:Key="UI_Service_UUID_16_32_128_bit" xml:space="preserve">Service UUID (16 / 32 / 128-bit)</sys:String>
+  <sys:String x:Key="UI_Custom_AD_type_0xHEX_or_decimal" xml:space="preserve">Custom AD type (0xHEX or decimal)</sys:String>
+  <sys:String x:Key="UI_Data_hex_UTF_8_text_for_Local_name" xml:space="preserve">Data hex (UTF-8 text for Local name)</sys:String>
+  <sys:String x:Key="UI_Append_structure" xml:space="preserve">Append structure</sys:String>
+  <sys:String x:Key="UI_Replace_selected" xml:space="preserve">Replace selected</sys:String>
+  <sys:String x:Key="UI_Remove_selected" xml:space="preserve">Remove selected</sys:String>
+  <sys:String x:Key="UI_Length_bytes_and_little_endian_UUID_company_prefixes_ar" xml:space="preserve">Length bytes and little-endian UUID/company prefixes are calculated automatically. Unsupported structures are never silently removed.</sys:String>
+  <sys:String x:Key="UI_Raw_advertising_payload" xml:space="preserve">Raw advertising payload</sys:String>
+  <sys:String x:Key="UI_Offset" xml:space="preserve">Offset</sys:String>
+  <sys:String x:Key="UI_Type" xml:space="preserve">Type</sys:String>
+  <sys:String x:Key="UI_Bytes" xml:space="preserve">Bytes</sys:String>
+  <sys:String x:Key="UI_Description" xml:space="preserve">Description</sys:String>
+  <sys:String x:Key="UI_Windows_Publisher" xml:space="preserve">Windows Publisher</sys:String>
+  <sys:String x:Key="UI_Save_profile" xml:space="preserve">Save profile</sys:String>
+  <sys:String x:Key="UI_03_Hex_payload" xml:space="preserve">03   Hex payload</sys:String>
+  <sys:String x:Key="UI_Every_byte_in_context" xml:space="preserve">Every byte, in context</sys:String>
+  <sys:String x:Key="UI_Input_bytes_API_submission_and_external_observations_ar" xml:space="preserve">Input bytes, API submission and external observations are tracked separately.</sys:String>
+  <sys:String x:Key="UI_Copy_hex" xml:space="preserve">Copy hex</sys:String>
+  <sys:String x:Key="UI_Paste_hex" xml:space="preserve">Paste hex</sys:String>
+  <sys:String x:Key="UI_Import_BIN_HEX_TXT" xml:space="preserve">Import BIN / HEX / TXT</sys:String>
+  <sys:String x:Key="UI_Export_BIN_HEX" xml:space="preserve">Export BIN / HEX</sys:String>
+  <sys:String x:Key="UI_Import_external_observation" xml:space="preserve">Import external observation</sys:String>
+  <sys:String x:Key="UI_Editable_input_hex" xml:space="preserve">Editable input hex</sys:String>
+  <sys:String x:Key="UI_Data_bytes" xml:space="preserve">Data bytes</sys:String>
+  <sys:String x:Key="UI_Parsed_structure" xml:space="preserve">Parsed structure</sys:String>
+  <sys:String x:Key="UI_Hex_data" xml:space="preserve">Hex data</sys:String>
+  <sys:String x:Key="UI_Submission_acceptance_external_evidence" xml:space="preserve">Submission / acceptance / external evidence</sys:String>
+  <sys:String x:Key="UI_1_Submitted_to_the_selected_backend" xml:space="preserve">1   Submitted to the selected backend</sys:String>
+  <sys:String x:Key="UI_2_Windows_mock_Started_confirmation" xml:space="preserve">2   Windows / mock Started confirmation</sys:String>
+  <sys:String x:Key="UI_3_User_imported_external_observation" xml:space="preserve">3   User-imported external observation</sys:String>
+  <sys:String x:Key="UI_04_BLE_scanner" xml:space="preserve">04   BLE scanner</sys:String>
+  <sys:String x:Key="UI_Listen_to_nearby_BLE_traffic" xml:space="preserve">Listen to nearby BLE traffic</sys:String>
+  <sys:String x:Key="UI_Windows_delivered_AD_sections_Rotating_addresses_can_ap" xml:space="preserve">Windows-delivered AD sections. Rotating addresses can appear as separate devices.</sys:String>
+  <sys:String x:Key="UI_Export_CSV_JSON" xml:space="preserve">Export CSV / JSON</sys:String>
+  <sys:String x:Key="UI_Load_JSON" xml:space="preserve">Load JSON</sys:String>
+  <sys:String x:Key="UI_Copy_selected_hex" xml:space="preserve">Copy selected hex</sys:String>
+  <sys:String x:Key="UI_Clear" xml:space="preserve">Clear</sys:String>
+  <sys:String x:Key="UI_Active_scan_request_scan_responses" xml:space="preserve">Active scan (request scan responses)</sys:String>
+  <sys:String x:Key="UI_Keep_duplicate_records" xml:space="preserve">Keep duplicate records</sys:String>
+  <sys:String x:Key="UI_Search_name_address_hex" xml:space="preserve">Search name / address / hex</sys:String>
+  <sys:String x:Key="UI_Min_RSSI" xml:space="preserve">Min RSSI</sys:String>
+  <sys:String x:Key="UI_Manufacturer_ID_name" xml:space="preserve">Manufacturer ID / name</sys:String>
+  <sys:String x:Key="UI_Service_UUID" xml:space="preserve">Service UUID</sys:String>
+  <sys:String x:Key="UI_Name" xml:space="preserve">Name</sys:String>
+  <sys:String x:Key="UI_Address" xml:space="preserve">Address</sys:String>
+  <sys:String x:Key="UI_RSSI" xml:space="preserve">RSSI</sys:String>
+  <sys:String x:Key="UI_Manufacturer" xml:space="preserve">Manufacturer</sys:String>
+  <sys:String x:Key="UI_Service_UUIDs" xml:space="preserve">Service UUIDs</sys:String>
+  <sys:String x:Key="UI_Count" xml:space="preserve">Count</sys:String>
+  <sys:String x:Key="UI_First_seen" xml:space="preserve">First seen</sys:String>
+  <sys:String x:Key="UI_Last_seen" xml:space="preserve">Last seen</sys:String>
+  <sys:String x:Key="UI_RSSI_history_latest_120_received_records" xml:space="preserve">RSSI history · latest 120 received records</sys:String>
+  <sys:String x:Key="UI_0_dBm_sample_order_127_dBm" xml:space="preserve">0 dBm ↑      sample order →      ↓ −127 dBm</sys:String>
+  <sys:String x:Key="UI_05_Protocol_research" xml:space="preserve">05   Protocol research</sys:String>
+  <sys:String x:Key="UI_Inspect_compare_verify" xml:space="preserve">Inspect, compare, verify</sys:String>
+  <sys:String x:Key="UI_Apple_Find_My_OpenHaystack_and_Google_Find_Hub_FHN_anal" xml:space="preserve">Apple Find My / OpenHaystack and Google Find Hub / FHN analysis. No account login or location-report retrieval.</sys:String>
+  <sys:String x:Key="UI_Controlled_research_session" xml:space="preserve">Controlled research session</sys:String>
+  <sys:String x:Key="UI_I_own_or_am_authorized_to_use_the_test_data_and_devices" xml:space="preserve">I own or am authorized to use the test data and devices; all testers are informed and consent.</sys:String>
+  <sys:String x:Key="UI_Keep_tests_local_and_time_limited_Research_transmission" xml:space="preserve">Keep tests local and time-limited. Research transmissions require 1–300 seconds. The Windows backend cannot provide a complete DULT accessory, key-derived Apple address or synchronized Google address rotation.</sys:String>
+  <sys:String x:Key="UI_Apple_Find_My_research" xml:space="preserve">Apple Find My research</sys:String>
+  <sys:String x:Key="UI_Reference_OpenHaystack_offline_finding_format_A_28_byte" xml:space="preserve">Reference: OpenHaystack offline-finding format. A 28-byte public key is split between manufacturer data and the static-random BLE address. Windows cannot select that address.</sys:String>
+  <sys:String x:Key="UI_Preview_Apple_test_public_key" xml:space="preserve">Preview Apple test public key</sys:String>
+  <sys:String x:Key="UI_Google_Find_Hub_research" xml:space="preserve">Google Find Hub research</sys:String>
+  <sys:String x:Key="UI_FHN_v1_3_frames_use_0xFEAA_service_data_with_a_20_byte_" xml:space="preserve">FHN v1.3 frames use 0xFEAA service data with a 20-byte or 32-byte EID. Windows Publisher reserves that AD type. Provisioning and official App registration are outside this analyzer.</sys:String>
+  <sys:String x:Key="UI_Preview_Google_test_EID" xml:space="preserve">Preview Google test EID</sys:String>
+  <sys:String x:Key="UI_Authorized_public_test_data_Apple_28_byte_public_key_OR" xml:space="preserve">Authorized public test data · Apple 28-byte public key OR Google 20/32-byte precomputed EID (hex)</sys:String>
+  <sys:String x:Key="UI_Analyze_current_payload" xml:space="preserve">Analyze current payload</sys:String>
+  <sys:String x:Key="UI_Compare_Apple_Google_profiles" xml:space="preserve">Compare Apple / Google profiles</sys:String>
+  <sys:String x:Key="UI_Import_test_key_to_vault" xml:space="preserve">Import test key to vault</sys:String>
+  <sys:String x:Key="UI_Delete_profile_key" xml:space="preserve">Delete profile key</sys:String>
+  <sys:String x:Key="UI_Export_research_report" xml:space="preserve">Export research report</sys:String>
+  <sys:String x:Key="UI_Vault_imports_follow_the_editor_s_protocol_Apple_public" xml:space="preserve">Vault imports follow the editor's protocol: Apple = public key (28 bytes), Google = secret EIK (32 bytes). A Google EIK is stored only; precomputed EIDs are supplied separately. No secret key is shown or included in normal exports.</sys:String>
+  <sys:String x:Key="UI_06_Profiles" xml:space="preserve">06   Profiles</sys:String>
+  <sys:String x:Key="UI_Reusable_independent_profiles" xml:space="preserve">Reusable, independent profiles</sys:String>
+  <sys:String x:Key="UI_Versioned_JSON_with_local_revision_history_Secret_key_b" xml:space="preserve">Versioned JSON with local revision history. Secret key bytes are kept in a separate per-user DPAPI vault.</sys:String>
+  <sys:String x:Key="UI_New" xml:space="preserve">New</sys:String>
+  <sys:String x:Key="UI_Save_rename" xml:space="preserve">Save / rename</sys:String>
+  <sys:String x:Key="UI_Save_as_duplicate" xml:space="preserve">Save as / duplicate</sys:String>
+  <sys:String x:Key="UI_Delete" xml:space="preserve">Delete</sys:String>
+  <sys:String x:Key="UI_Import" xml:space="preserve">Import</sys:String>
+  <sys:String x:Key="UI_Export" xml:space="preserve">Export</sys:String>
+  <sys:String x:Key="UI_Notes" xml:space="preserve">Notes</sys:String>
+  <sys:String x:Key="UI_Saved_revisions" xml:space="preserve">Saved revisions</sys:String>
+  <sys:String x:Key="UI_Load_selected_revision" xml:space="preserve">Load selected revision</sys:String>
+  <sys:String x:Key="UI_Selecting_a_profile_replaces_the_editor_draft_Save_your" xml:space="preserve">Selecting a profile replaces the editor draft. Save your changes before switching.</sys:String>
+  <sys:String x:Key="UI_Refresh_JSON_from_editor" xml:space="preserve">Refresh JSON from editor</sys:String>
+  <sys:String x:Key="UI_Apply_JSON_to_editor" xml:space="preserve">Apply JSON to editor</sys:String>
+  <sys:String x:Key="UI_07_Logs_amp_diagnostics" xml:space="preserve">07   Logs &amp; diagnostics</sys:String>
+  <sys:String x:Key="UI_Evidence_and_diagnostics" xml:space="preserve">Evidence and diagnostics</sys:String>
+  <sys:String x:Key="UI_Time_stamped_operation_events_explicit_API_errors_and_a" xml:space="preserve">Time-stamped operation events, explicit API errors and adapter capability evidence.</sys:String>
+  <sys:String x:Key="UI_Export_debug_report" xml:space="preserve">Export debug report</sys:String>
+  <sys:String x:Key="UI_Clear_logs" xml:space="preserve">Clear logs</sys:String>
+  <sys:String x:Key="UI_Time" xml:space="preserve">Time</sys:String>
+  <sys:String x:Key="UI_Category" xml:space="preserve">Category</sys:String>
+  <sys:String x:Key="UI_Code_state" xml:space="preserve">Code / state</sys:String>
+</ResourceDictionary>

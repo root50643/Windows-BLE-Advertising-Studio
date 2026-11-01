@@ -1,0 +1,13 @@
+name: Feature request
+description: Suggest a capability or backend.
+body:
+  - type: textarea
+    id: request
+    attributes:
+      label: Use case and desired behavior
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Public API documentation or hardware evidence

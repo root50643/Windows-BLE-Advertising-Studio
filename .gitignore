@@ -1,0 +1,14 @@
+bin/
+obj/
+.vs/
+.idea/
+artifacts/
+TestResults/
+*.user
+*.suo
+*.dpapi
+*.key
+*.pfx
+*.p12
+.env
+local-data/

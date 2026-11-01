@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "id": "00000004-0000-4000-8000-000000000004",
+  "name": "Raw Hex Payload Test",
+  "payloadHex": "04 30 01 02 03",
+  "notes": "Non-reserved AD type for local API acceptance experiments. Controller/driver acceptance must be measured."
+}

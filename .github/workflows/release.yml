@@ -1,0 +1,42 @@
+name: Windows release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Build, test and package tagged version
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          $version = $env:RELEASE_TAG -replace '^v', ''
+          ./scripts/build.ps1 -Version $version
+      - name: Verify published GUI
+        shell: pwsh
+        run: ./scripts/test-ui.ps1
+      - name: Publish GitHub Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          $version = $env:RELEASE_TAG -replace '^v', ''
+          $zip = "artifacts/release/Windows-BLE-Advertising-Studio-v$version-win-x64.zip"
+          gh release create $env:RELEASE_TAG artifacts/release/BLEStudio.exe $zip artifacts/release/SHA256SUMS.txt artifacts/release/build-info.json --verify-tag --title "Windows BLE Advertising Studio $env:RELEASE_TAG" --generate-notes --notes-file docs/release-notes.md
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: release-validation
+          path: |
+            artifacts/test-results/**
+            artifacts/ui-smoke/*.json
+            artifacts/ui-smoke/*.png
+            artifacts/ui-smoke/failure.txt

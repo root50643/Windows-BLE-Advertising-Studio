@@ -1,0 +1,3 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup><ProjectReference Include="../BLEStudio.Core/BLEStudio.Core.csproj" /></ItemGroup>
+</Project>

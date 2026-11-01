@@ -1,0 +1,24 @@
+name: Bug report
+description: Report a reproducible problem without keys or personal scan data.
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: App version, Windows build and adapter/driver
+  - type: textarea
+    id: diagnostic
+    attributes:
+      label: Sanitized error code and diagnostics
+      description: Do not include keys, account credentials, addresses or identifying payloads.

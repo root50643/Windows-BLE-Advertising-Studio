@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "id": "00000002-0000-4000-8000-000000000002",
+  "name": "Custom Manufacturer Data",
+  "payloadHex": "06 FF FF FF 42 4C 45",
+  "notes": "Edit the company ID and manufacturer bytes in the structure builder."
+}

@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "id": "00000003-0000-4000-8000-000000000003",
+  "name": "Custom Service Data",
+  "payloadHex": "06 16 AA FE 01 02 03",
+  "notes": "Analysis/export example. Service data AD type 0x16 is reserved by Windows Publisher and is intentionally blocked."
+}
