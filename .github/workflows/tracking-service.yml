@@ -32,7 +32,7 @@ jobs:
           printf '%s' 'ci-offline-fixture-password-only' > "$testdir/secrets/password"
           docker run -d --name ble-studio-ci --user "$(id -u):$(id -g)" -p 127.0.0.1:18765:8080 --read-only --tmpfs /tmp -v "$testdir/data:/data" -v "$testdir/secrets:/run/secrets:ro" -e PUBLIC_URL=https://ci.invalid -e MASTER_KEY_FILE=/run/secrets/key -e OWNER_PASSWORD_FILE=/run/secrets/password ble-studio-service:ci
           trap 'docker logs ble-studio-ci; docker rm -f ble-studio-ci' EXIT
-          curl --retry 20 --retry-delay 1 --retry-connrefused --fail http://127.0.0.1:18765/api/health
+          curl --retry 20 --retry-delay 1 --retry-all-errors --fail http://127.0.0.1:18765/api/health
           test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:18765/api/trackers)" = 401
       - uses: actions/upload-artifact@v4
         if: always()
