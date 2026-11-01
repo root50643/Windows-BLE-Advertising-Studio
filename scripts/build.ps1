@@ -44,7 +44,9 @@ try {
     Copy-Item -LiteralPath (Join-Path $taskNugetRoot 'bouncycastle.cryptography/2.7.0/LICENSE.md') -Destination (Join-Path $taskLicenseRoot 'BouncyCastle-LICENSE.md')
     Copy-Item -LiteralPath $taskExe.FullName -Destination (Join-Path $taskReleaseRoot 'BLEStudio.exe') -Force
     $taskHash = (Get-FileHash -LiteralPath $taskExe.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
-    $taskBuildInfo = [ordered]@{ version = $Version; runtime = 'win-x64'; selfContained = $true; singleFile = $true; trimmed = $false; builtAtUtc = [DateTimeOffset]::UtcNow.ToString('O'); exe = 'BLEStudio.exe'; bytes = $taskExe.Length; sha256 = $taskHash; fileVersion = $taskExe.VersionInfo.FileVersion }
+    $taskSourceCommit = (git rev-parse HEAD).Trim()
+    $taskSourceDirty = -not [string]::IsNullOrWhiteSpace((git status --porcelain | Out-String))
+    $taskBuildInfo = [ordered]@{ version = $Version; sourceCommit = $taskSourceCommit; sourceDirty = $taskSourceDirty; runtime = 'win-x64'; selfContained = $true; singleFile = $true; trimmed = $false; builtAtUtc = [DateTimeOffset]::UtcNow.ToString('O'); exe = 'BLEStudio.exe'; bytes = $taskExe.Length; sha256 = $taskHash; fileVersion = $taskExe.VersionInfo.FileVersion }
     $taskBuildInfo | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $taskPublish 'build-info.json') -Encoding utf8
     $taskZip = Join-Path $taskReleaseRoot "Windows-BLE-Advertising-Studio-v$Version-win-x64.zip"
     Compress-Archive -LiteralPath $taskPublish -DestinationPath $taskZip -Force

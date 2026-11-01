@@ -23,6 +23,9 @@ jobs:
         run: |
           docker build -f deploy/Dockerfile -t ble-studio-service:ci .
           docker run --rm ble-studio-service:ci python google_adapter.py --self-test
+          docker build -f deploy/Dockerfile.apple -t ble-studio-apple:ci .
+          docker run --rm ble-studio-apple:ci python -m compileall -q endpoint
+          docker run --rm -e DOMAIN=ci.invalid -v "$PWD/deploy/Caddyfile:/etc/caddy/Caddyfile:ro" caddy:2 caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
       - name: Check container API lifecycle with private fixture secrets
         shell: bash
         run: |
