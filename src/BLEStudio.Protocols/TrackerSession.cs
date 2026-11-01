@@ -34,6 +34,7 @@ public sealed class TrackerSession(Func<ResearchProtocol, IBluetoothBackend> fac
     }
     private async Task StartRadioAsync(CancellationToken token)
     {
+        Capability = new(); Notify("正在重新檢查原生廣播；本次證據尚未驗證 / Checking native advertising; new evidence unverified");
         CurrentProfile = TrackerCryptography.BuildProfile(_identity!, _secret!, _clock.GetUtcNow(), _extended);
         StartedAt = _clock.GetUtcNow();
         _backend = factory(_identity!.Protocol); _backend.AdvertisingStatusChanged += OnStatus;
@@ -69,8 +70,13 @@ public sealed class TrackerSession(Func<ResearchProtocol, IBluetoothBackend> fac
     private async Task StopRadioAsync(bool cancelRotation = true)
     {
         if (cancelRotation) { _rotation?.Cancel(); _rotation?.Dispose(); _rotation = null; }
-        if (_backend != null) { _backend.AdvertisingStatusChanged -= OnStatus; try { await _backend.StopAdvertisingAsync(); } finally { await _backend.DisposeAsync(); _backend = null; } }
-        Running = false;
+        var backend = _backend; _backend = null; Running = false;
+        if (backend != null)
+        {
+            backend.AdvertisingStatusChanged -= OnStatus;
+            try { try { await backend.StopAdvertisingAsync(); } finally { await backend.DisposeAsync(); } }
+            catch { RequestedActive = false; Capability = Capability with { ApiAccepted = false }; Notify("停止要求失敗；原生無線狀態未知 / Stop failed; native radio state unknown"); throw; }
+        }
     }
     public async Task StopAsync() { await _gate.WaitAsync(); try { RequestedActive = false; await StopRadioAsync(); Notify("已停止；退出、休眠及關機時不會廣播 / Stopped"); } finally { _gate.Release(); } }
     public async Task SuspendAsync() { await _gate.WaitAsync(); try { _suspended = true; await StopRadioAsync(); Notify("休眠／睡眠中不會廣播；喚醒後重新檢查 / Suspended"); } finally { _gate.Release(); } }
@@ -87,5 +93,5 @@ public sealed class TrackerSession(Func<ResearchProtocol, IBluetoothBackend> fac
         _secret = null; _identity = null; CurrentProfile = null; Capability = new(); Notify("已停止 / Stopped");
     }
     public void ApplyReport(LocationReport report) { if (_identity == null) return; var eid = _identity.Protocol == ResearchProtocol.GoogleFindHub && CurrentProfile != null ? Convert.ToHexString(AdCodec.Decode(Hex.Parse(CurrentProfile.PayloadHex)).Single(x => x.Type == 0x16).Data.AsSpan(3, 20)) : null; Capability = TrackerCryptography.VerifyLocation(Capability, _identity, report, StartedAt, eid); Changed?.Invoke(this, EventArgs.Empty); }
-    public async ValueTask DisposeAsync() { await StopAsync(); if (_secret != null) System.Security.Cryptography.CryptographicOperations.ZeroMemory(_secret); _gate.Dispose(); }
+    public async ValueTask DisposeAsync() { try { await StopAsync(); } finally { if (_secret != null) System.Security.Cryptography.CryptographicOperations.ZeroMemory(_secret); _gate.Dispose(); } }
 }

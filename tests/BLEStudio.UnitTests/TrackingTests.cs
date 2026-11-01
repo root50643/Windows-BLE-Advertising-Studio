@@ -80,17 +80,30 @@ public class TrackingTests
         Assert.Equal(2, radios.Count); Assert.NotEqual(original, session.CurrentProfile!.PayloadHex); Assert.False(session.Capability.PacketVerified); Assert.False(session.Capability.LocationVerified);
     }
     private static TrackerIdentity AppleIdentity() => new() { Protocol = ResearchProtocol.AppleFindMy, PublicKeyHex = Convert.ToHexString(TrackerCryptography.CreateAppleIdentity().PublicKey) };
+    [Fact] public async Task RotationInvalidatesPriorProofBeforeTheNextApiRequestCompletes()
+    {
+        var now = DateTimeOffset.UtcNow; var clock = new FakeTimeProvider(now); var pending = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously); var count = 0;
+        await using var session = new TrackerSession(_ => new TestRadio { PendingStart = ++count == 2 ? pending.Task : Task.CompletedTask }, clock);
+        var identity = new TrackerIdentity { PairDate = now }; await session.StartAsync(identity, new byte[32]);
+        session.ImportEvidence(new("Offline unit fixture", now, "C0:00:00:00:00:00", "RandomResolvable", "LegacyNonConnectable", session.CurrentProfile!.PayloadHex));
+        var eid = Convert.ToHexString(AdCodec.Decode(Hex.Parse(session.CurrentProfile.PayloadHex)).Single(x => x.Type == 0x16).Data.AsSpan(3, 20));
+        session.ApplyReport(Report(identity, now) with { Source = "Google Find Hub", AdvertisedIdentityHex = eid }); Assert.True(session.Capability.RealTrackingVerified);
+        clock.Advance(TimeSpan.FromSeconds(1024)); for (var i = 0; i < 100 && count < 2; i++) await Task.Delay(10);
+        try { Assert.Equal(2, count); Assert.False(session.Capability.ApiAccepted); Assert.False(session.Capability.PacketVerified); Assert.False(session.Capability.LocationVerified); }
+        finally { pending.TrySetResult(); }
+    }
     private static LocationReport Report(TrackerIdentity identity, DateTimeOffset now) => new(identity.Id, now, 0, 0, 10, "Apple Find My", true, "unit-test-fixture-not-a-network-report");
     private sealed class TestRadio : IBluetoothBackend
     {
         public bool Reject { get; init; }
+        public Task PendingStart { get; init; } = Task.CompletedTask;
         public int Stops, Detections;
         public string Name => "Unit-test radio double; no hardware";
         public event EventHandler<BackendStatus>? AdvertisingStatusChanged { add { } remove { } }
         public event EventHandler<BackendStatus>? ScanningStatusChanged { add { } remove { } }
         public event EventHandler<ScanPacket>? PacketReceived { add { } remove { } }
         public Task<AdapterCapabilities> DetectAsync(CancellationToken cancellationToken = default) { Detections++; return Task.FromResult(Ready); }
-        public Task StartAdvertisingAsync(AdvertisementProfile profile, CancellationToken cancellationToken = default) => Reject ? Task.FromException(new BluetoothOperationException("ApiRejected", "Fixture rejection")) : Task.CompletedTask;
+        public Task StartAdvertisingAsync(AdvertisementProfile profile, CancellationToken cancellationToken = default) => Reject ? Task.FromException(new BluetoothOperationException("ApiRejected", "Fixture rejection")) : PendingStart;
         public Task StopAdvertisingAsync() { Stops++; return Task.CompletedTask; }
         public Task StartScanningAsync(bool active = true, CancellationToken cancellationToken = default) => Task.CompletedTask;
         public Task StopScanningAsync() => Task.CompletedTask;

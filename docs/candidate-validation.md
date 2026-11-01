@@ -4,7 +4,7 @@
 
 | Check | Result |
 | --- | --- |
-| .NET unit/integration regression | 104 passed (including the existing 81-test baseline) |
+| .NET unit/integration regression | 105 passed (including the existing 81-test baseline); rotation clears old evidence before the next API request completes |
 | Published Windows EXE / WPF commands | 19 passed; all eight pages and light/dark themes rendered |
 | Python API / authenticated report cryptography | 14 passed with isolated offline fixtures |
 | Chromium desktop / 390px mobile UI | 7 passed: owner login, empty history, explicit provider failure, token download/revocation, mobile overflow, language switch, no JS errors |
