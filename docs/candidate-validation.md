@@ -4,9 +4,9 @@
 
 | Check | Result |
 | --- | --- |
-| .NET unit/integration regression | 105 passed (including the existing 81-test baseline); rotation clears old evidence before the next API request completes |
+| .NET unit/integration regression | 106 passed (including the existing 81-test baseline); rotation clears old evidence before the next API request completes; imported Google keys adopt the canonical pairing date |
 | Published Windows EXE / WPF commands | 19 passed; all eight pages and light/dark themes rendered |
-| Python API / authenticated report cryptography | 14 passed with isolated offline fixtures |
+| Python API / authenticated report cryptography | 15 passed with isolated offline fixtures |
 | Chromium desktop / 390px mobile UI | 7 passed: owner login, empty history, explicit provider failure, token download/revocation, mobile overflow, language switch, no JS errors |
 | Windows native adapter | Seven bounded cases; full Apple request accepted, full FHN requests incomplete. [Details](native-tracking-validation.md) |
 | Linux API image | Built; pinned Google provider imports, protobuf and rotating-EID self-test passed without account credentials |

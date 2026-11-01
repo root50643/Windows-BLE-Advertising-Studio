@@ -78,7 +78,7 @@ class Providers:
                 raise ProviderError('AppleKeyMismatch')
             return identity
         result = await self.google('register', identity, secret)
-        return {**identity, 'canonicId': result['canonicId']}
+        return {**identity, 'canonicId': result['canonicId'], 'pairDate': result['pairDate']}
 
     async def locations(self, identity, secret):
         if identity['protocol'] == 'GoogleFindHub':

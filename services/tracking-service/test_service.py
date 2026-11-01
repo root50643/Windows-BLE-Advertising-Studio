@@ -102,6 +102,15 @@ def test_google_requires_account_authorization(client):
     assert response.status_code == 502 and response.json()['code'] == 'GoogleAuthorizationRequired'
 
 
+def test_google_registration_preserves_canonical_server_pair_date(tmp_path):
+    providers = Providers(Store(str(tmp_path), os.urandom(32)), '', '')
+    async def authorized_fixture(*_args):
+        return {'canonicId': 'offline-test-canonical-id', 'pairDate': '2025-01-01T00:00:00+00:00'}
+    providers.google = authorized_fixture
+    result = asyncio.run(providers.register({'protocol': 'GoogleFindHub', 'pairDate': '2026-01-01T00:00:00+00:00'}, bytes(32)))
+    assert result['pairDate'] == '2025-01-01T00:00:00+00:00'
+
+
 def test_owner_can_remove_local_provider_authorization(client):
     assert client.post('/api/providers/google', json={'unit-test': 'not-a-real-account'}).status_code == 200
     assert client.app.state.store.secret('google-account')

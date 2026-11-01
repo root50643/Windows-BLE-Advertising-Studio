@@ -6,6 +6,14 @@ namespace BLEStudio.IntegrationTests;
 
 public class TrackingClientTests
 {
+    [Fact] public async Task RegistrationAdoptsCanonicalPairDateWithoutLosingLocalKeyReference()
+    {
+        var identity = new BLEStudio.Core.TrackerIdentity { SecretReference = "local-dpapi-reference" };
+        var body = System.Text.Json.JsonSerializer.Serialize(new { id = identity.Id, protocol = "GoogleFindHub", pairDate = "2025-01-01T00:00:00Z", canonicId = "offline-canonical-id" });
+        using var client = new TrackingClient("https://example.com", "unit-test-token", new Handler(_ => new(HttpStatusCode.OK) { Content = new StringContent(body, System.Text.Encoding.UTF8, "application/json") }));
+        var result = await client.RegisterAsync(identity, new byte[32]);
+        Assert.Equal(2025, result.PairDate.Year); Assert.Equal(identity.SecretReference, result.SecretReference); Assert.Equal("offline-canonical-id", result.CanonicId);
+    }
     [Fact] public void PlainHttpAndEmbeddedCredentialsRejected()
     {
         Assert.Throws<FormatException>(() => new TrackingClient("http://example.com", "test"));

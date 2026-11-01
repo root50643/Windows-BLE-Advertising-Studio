@@ -28,7 +28,7 @@ public sealed class TrackingClient : ITrackingProvider, IDisposable
         using var response = await _http.PostAsJsonAsync($"api/trackers/{identity.Id:D}/register", new { identity.Id, identity.Name, protocol = identity.Protocol.ToString(), identity.PairDate, identity.PublicKeyHex, secretBase64 = Convert.ToBase64String(secret), identity.CanonicId }, token);
         await RequireSuccess(response, token);
         var registered = await response.Content.ReadFromJsonAsync<TrackerIdentity>(Json, token) ?? throw new FormatException("Empty tracker registration.");
-        return identity with { CanonicId = registered.CanonicId };
+        return identity with { CanonicId = registered.CanonicId, PairDate = registered.PairDate };
     }
     public async Task<TrackingResult> GetLocationsAsync(Guid trackerId, CancellationToken cancellationToken = default)
     {

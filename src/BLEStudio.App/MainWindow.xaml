@@ -121,12 +121,12 @@
           <TextBlock Text="Windows 原生驅動 · 一次一種協定 · MAC 與位址輪替由 Windows 管理" Style="{StaticResource Caption}" />
           <Border Style="{StaticResource Card}"><StackPanel>
             <TextBlock Text="電腦必須保持開機。關閉視窗會縮至系統匣；系統匣「退出」會停止廣播。睡眠／休眠／關機時不會廣播，喚醒後重新檢查並恢復先前啟用的模式。" TextWrapping="Wrap" />
-            <WrapPanel Margin="0,12,0,4"><ComboBox ItemsSource="{Binding Protocols}" SelectedItem="{Binding Protocol}" Width="205" /><TextBox Text="{Binding TrackerName, UpdateSourceTrigger=PropertyChanged}" Width="190" /><CheckBox Content="要求 Extended（需外部驗證）" IsChecked="{Binding Extended}" VerticalAlignment="Center" /></WrapPanel>
+            <WrapPanel Margin="0,12,0,4" IsEnabled="{Binding IsIdle}"><ComboBox ItemsSource="{Binding Protocols}" SelectedItem="{Binding Protocol}" Width="205" /><TextBox Text="{Binding TrackerName, UpdateSourceTrigger=PropertyChanged}" ToolTip="新身分名稱 / Name for a new identity" Width="190" /><CheckBox Content="要求 Extended（需外部驗證）" IsChecked="{Binding Extended}" VerticalAlignment="Center" /></WrapPanel>
             <CheckBox Content="身分與帳號皆為本人所有，且已取得附近測試者同意 / I own this identity and have tester consent" IsChecked="{Binding Consent}" Margin="0,7" />
             <WrapPanel><Button Content="啟動 / Start" Command="{Binding StartCommand}" Style="{StaticResource PrimaryButton}" /><Button Content="停止 / Stop" Command="{Binding StopCommand}" /><Button Content="建立新身分 / New identity" Command="{Binding GenerateCommand}" /><Button Content="匯入私鑰 / Import owned key" Command="{Binding ImportKeyCommand}" /><Button Content="匯入手機封包 / Verify capture" Command="{Binding ImportEvidenceCommand}" /></WrapPanel>
             <TextBlock Text="{Binding Status}" TextWrapping="Wrap" Foreground="{StaticResource Accent}" Margin="0,10" />
             <TextBlock Text="{Binding IdentityStatus}" TextWrapping="Wrap" FontFamily="Consolas" />
-            <ComboBox ItemsSource="{Binding SavedIdentities}" SelectedItem="{Binding SelectedIdentity}" DisplayMemberPath="Id" ToolTip="選擇此協定已儲存的身分 / Select a saved identity" HorizontalAlignment="Left" MinWidth="330" Margin="0,10,0,0" />
+            <ComboBox ItemsSource="{Binding SavedIdentities}" SelectedItem="{Binding SelectedIdentity}" DisplayMemberPath="Id" IsEnabled="{Binding IsIdle}" ToolTip="選擇此協定已儲存的身分 / Select a saved identity" HorizontalAlignment="Left" MinWidth="330" Margin="0,10,0,0" />
           </StackPanel></Border>
           <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition /></Grid.ColumnDefinitions>
             <Border Style="{StaticResource Card}"><StackPanel><TextBlock Text="分層能力驗證 / Evidence gates" FontSize="18" Margin="0,0,0,10" /><TextBlock Text="{Binding Capabilities}" TextWrapping="Wrap" /><TextBlock Text="封包僅為使用者匯入的外部證據；API Started 不代表完整 AirTag／Google 網路追蹤成功。" TextWrapping="Wrap" Foreground="{DynamicResource Muted}" Margin="0,12,0,0" /></StackPanel></Border>

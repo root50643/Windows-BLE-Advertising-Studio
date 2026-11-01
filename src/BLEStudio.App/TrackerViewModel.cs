@@ -32,6 +32,7 @@ public sealed class TrackerViewModel : ObservableObject, IAsyncDisposable
     private ResearchProtocol _protocol = ResearchProtocol.GoogleFindHub;
     private string _serviceUrl = "", _name = "Windows PC", _status = "尚未啟動 / Not started", _locationStatus = "尚無定位回報 / No location reports";
     private bool _extended, _consent, _busy;
+    public bool IsIdle => !_busy;
     public ObservableCollection<LocationReport> Reports { get; } = [];
     public ObservableCollection<TrackerIdentity> SavedIdentities { get; } = [];
     public TrackerIdentity? SelectedIdentity
@@ -73,7 +74,7 @@ public sealed class TrackerViewModel : ObservableObject, IAsyncDisposable
         _startExclusive = startExclusive; _report = report;
         _session = new(p => isMock() ? new MockBluetoothBackend() : p == ResearchProtocol.GoogleFindHub ? new WindowsGattBackend() : new WindowsBluetoothBackend());
         _session.Changed += (_, _) => Application.Current.Dispatcher.BeginInvoke(() => { Status = _session.Status; Notify(nameof(Payload)); Notify(nameof(Capabilities)); Notify(nameof(RequestedActive)); });
-        UiCommand Cmd(Func<Task> action) => new(async () => { if (_busy) return; _busy = true; try { await action(); } finally { _busy = false; } }, report);
+        UiCommand Cmd(Func<Task> action) => new(async () => { if (_busy) return; _busy = true; Notify(nameof(IsIdle)); try { await action(); } finally { _busy = false; Notify(nameof(IsIdle)); } }, report);
         GenerateCommand = Cmd(() => { CreateIdentity(null); return Task.CompletedTask; });
         ImportKeyCommand = Cmd(() => { var dialog = new OpenFileDialog { Filter = "Owned binary private key (*.bin)|*.bin", Title = "Import owned Apple P-224 private key (28 bytes) or Google EIK (32 bytes)" }; if (dialog.ShowDialog() == true) CreateIdentity(File.ReadAllBytes(dialog.FileName)); return Task.CompletedTask; });
         StartCommand = Cmd(StartAsync); StopCommand = new UiCommand(StopAsync, report);
@@ -137,9 +138,17 @@ public sealed class TrackerViewModel : ObservableObject, IAsyncDisposable
     private async Task RegisterAsync()
     {
         if (_identity == null || _client == null) throw new InvalidOperationException("Create an identity and connect your HTTPS service first.");
+        if (RequestedActive) throw new InvalidOperationException("Stop advertising before registration so the server pairing date can be applied safely.");
         if (!Consent) throw new InvalidOperationException("Confirm ownership before uploading this identity to your service.");
-        var secret = _vault.Load(_identity.SecretReference);
-        try { var updated = await _client.RegisterAsync(_identity, secret); _identities.Remove(_identity); _identity = updated; _identities.Add(updated); Save(); Status = "服務註冊完成；仍須驗證封包與真實定位 / Registered; RF and location verification still required"; }
+        var identity = _identity; var secret = _vault.Load(identity.SecretReference);
+        try
+        {
+            var updated = await _client.RegisterAsync(identity, secret); var selected = _identity?.Id == identity.Id;
+            _identities.RemoveAll(x => x.Id == identity.Id); _identities.Add(updated);
+            var index = SavedIdentities.IndexOf(identity); if (index >= 0) SavedIdentities[index] = updated;
+            if (selected) SelectedIdentity = updated;
+            Save(); Status = "服務註冊完成；仍須驗證封包與真實定位 / Registered; RF and location verification still required";
+        }
         finally { CryptographicOperations.ZeroMemory(secret); }
         await RefreshAsync(false);
     }

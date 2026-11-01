@@ -105,13 +105,16 @@ def run(data, auth_file):
     if device is None:
         return {'code': 'GoogleOwnedIdentityNotFound'}
     canonic = device.identifierInformation.canonicIds.canonicId[0].id
+    pair_date = device.information.deviceRegistration.pairDate
+    if pair_date <= 0:
+        return {'code': 'GoogleInvalidRegisteredPairDate'}
     upload = pb.UploadPrecomputedPublicKeyIdsRequest()
     item = upload.deviceEids.add()
     item.canonicId.id, item.pairDate = canonic, pair_date
     item.clientList.publicKeyIdInfo.extend(public_ids())
     spot_request('UploadPrecomputedPublicKeyIds', upload.SerializeToString())
     if data['operation'] == 'register':
-        return {'canonicId': canonic}
+        return {'canonicId': canonic, 'pairDate': datetime.fromtimestamp(pair_date, timezone.utc).isoformat()}
 
     from Auth.fcm_receiver import FcmReceiver
     from NovaApi.ExecuteAction.LocateTracker.location_request import create_location_request
